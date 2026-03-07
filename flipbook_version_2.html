@@ -1,0 +1,3032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Kineograph - A modern 3D flipbook application with multi-format document support">
+<meta property="og:title" content="Kineograph Flipbook">
+<meta property="og:description" content="Realistic 3D page-turning flipbook experience with PPT, DOC, ODT support">
+<title>Kineograph — 3D Flipbook (Multi-Format)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   KINEOGRAPH FLIPBOOK — CSS Architecture (Enhanced)
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --ink: #0f0c08;
+  --paper: #f5f0e8;
+  --paper-dark: #e8e0d0;
+  --aged: #c8b89a;
+  --sepia: #8b6914;
+  --accent: #c0392b;
+  --accent-soft: rgba(192,57,43,0.12);
+  --ui-bg: rgba(15,12,8,0.92);
+  --ui-border: rgba(200,184,154,0.2);
+  --ui-text: #c8b89a;
+  --shadow-book: 0 30px 80px rgba(0,0,0,0.6), 0 10px 30px rgba(0,0,0,0.4);
+  --transition-fast: 0.15s cubic-bezier(0.4,0,0.2,1);
+  --transition-med: 0.3s cubic-bezier(0.4,0,0.2,1);
+  --page-turn: 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  background: var(--ink);
+  overflow: hidden;
+  color: var(--paper);
+}
+
+/* ── BACKGROUND ── */
+#bg-canvas {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ── LAYOUT ── */
+#app {
+  position: relative;
+  width: 100%; height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+/* ── TOP BAR ── */
+#topbar {
+  height: 52px;
+  background: var(--ui-bg);
+  border-bottom: 1px solid var(--ui-border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  backdrop-filter: blur(20px);
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--paper);
+  text-transform: uppercase;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+.brand em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.topbar-sep {
+  width: 1px; height: 24px;
+  background: var(--ui-border);
+  flex-shrink: 0;
+}
+
+.topbar-btn {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  color: var(--ui-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.topbar-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.topbar-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.topbar-btn svg { flex-shrink: 0; }
+
+.topbar-spacer { flex: 1; }
+
+/* ── MAIN STAGE ── */
+#stage {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 220px;
+  background: var(--ui-bg);
+  border-right: 1px solid var(--ui-border);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width var(--transition-med);
+  flex-shrink: 0;
+  z-index: 50;
+}
+#sidebar.collapsed { width: 0; }
+
+#sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--ui-border);
+  flex-shrink: 0;
+}
+.sidebar-tab {
+  flex: 1;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: var(--ui-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-transform: uppercase;
+}
+.sidebar-tab.active {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+}
+.sidebar-tab:hover { color: var(--paper); }
+
+#sidebar-content { flex: 1; overflow-y: auto; padding: 12px; }
+#sidebar-content::-webkit-scrollbar { width: 4px; }
+#sidebar-content::-webkit-scrollbar-track { background: transparent; }
+#sidebar-content::-webkit-scrollbar-thumb { background: var(--ui-border); border-radius: 2px; }
+
+/* Thumbnails */
+.thumb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.thumb-item {
+  aspect-ratio: 3/4;
+  background: var(--paper-dark);
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: var(--transition-fast);
+  position: relative;
+}
+.thumb-item:hover { border-color: var(--aged); }
+.thumb-item.active { border-color: var(--accent); }
+.thumb-item canvas { width: 100%; height: 100%; display: block; }
+.thumb-num {
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink);
+  background: rgba(255,255,255,0.6);
+  padding: 1px 0;
+}
+
+/* Bookmarks */
+.bookmark-item {
+  padding: 8px;
+  border-bottom: 1px solid var(--ui-border);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bookmark-item:hover { background: var(--accent-soft); }
+.bookmark-item .bm-page {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.bookmark-item .bm-label { font-size: 13px; color: var(--ui-text); }
+
+/* Search Panel */
+.search-panel { padding: 8px 0; }
+.search-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  padding: 8px;
+  color: var(--paper);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  outline: none;
+  transition: var(--transition-fast);
+  margin-bottom: 8px;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-results { font-size: 12px; color: var(--ui-text); }
+
+/* ── BOOK VIEWPORT ── */
+#book-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── BOOK CONTAINER ── */
+#book-container {
+  position: relative;
+  transform-origin: center center;
+  transition: transform var(--transition-med);
+}
+
+/* 3D BOOK */
+#book {
+  position: relative;
+  perspective: 2000px;
+  cursor: pointer;
+}
+
+.book-inner {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* ── PAGE STRUCTURE ── */
+.page-spread {
+  display: flex;
+  position: relative;
+}
+
+.book-shadow {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 20px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+/* Individual page half */
+.page-half {
+  width: var(--page-w, 350px);
+  height: var(--page-h, 490px);
+  position: relative;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: inset -2px 0 8px rgba(0,0,0,0.08);
+}
+
+.page-half.left {
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -4px 0 12px rgba(0,0,0,0.15), -4px 0 20px rgba(0,0,0,0.3);
+}
+.page-half.right {
+  border-radius: 0 4px 4px 0;
+  box-shadow: inset 4px 0 12px rgba(0,0,0,0.15), 4px 0 20px rgba(0,0,0,0.3);
+}
+
+/* Page spine crease */
+.page-half.left::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(to left, rgba(0,0,0,0.12) 0%, transparent 100%);
+  pointer-events: none;
+}
+.page-half.right::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, rgba(0,0,0,0.12) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Page canvas */
+.page-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+/* ── PAGE FLIP ANIMATION ── */
+.flip-wrapper {
+  position: absolute;
+  top: 0;
+  width: var(--page-w, 350px);
+  height: var(--page-h, 490px);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  z-index: 10;
+}
+
+.flip-wrapper.flip-left {
+  left: 0;
+  transform-origin: right center;
+}
+.flip-wrapper.flip-right {
+  right: 0;
+  transform-origin: left center;
+}
+
+.flip-front, .flip-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+  background: var(--paper);
+}
+
+/* Page turning shadow gradient */
+.flip-shadow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── PAGE CURL HOVER EFFECT ── */
+.corner-curl {
+  position: absolute;
+  bottom: 0;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  z-index: 20;
+  overflow: hidden;
+  transition: var(--transition-med);
+}
+.corner-curl.right { right: 0; border-radius: 0 0 4px 0; }
+.corner-curl.left { left: 0; border-radius: 0 0 0 4px; }
+
+.corner-curl::before {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 0 40px 40px;
+  border-color: transparent transparent var(--aged) transparent;
+  transition: border-width var(--transition-med);
+  filter: drop-shadow(-2px -2px 4px rgba(0,0,0,0.2));
+}
+.corner-curl.right::before { border-bottom-color: var(--aged); }
+.corner-curl:hover::before { border-width: 0 0 60px 60px; }
+
+.corner-curl.left::before {
+  right: auto; left: 0;
+  border-width: 0 40px 40px 0;
+  border-color: transparent var(--aged) transparent transparent;
+}
+.corner-curl.left:hover::before { border-width: 0 60px 60px 0; }
+
+/* Page number overlay */
+.page-num-overlay {
+  position: absolute;
+  bottom: 12px;
+  width: 100%;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(139,105,20,0.6);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── SINGLE PAGE MODE ── */
+#book.single-mode .page-spread { justify-content: center; }
+#book.single-mode .page-half.left { display: none; }
+
+/* ── ANNOTATION CANVAS ── */
+.annotation-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  cursor: crosshair;
+  pointer-events: none;
+}
+.annotation-layer.active { pointer-events: all; }
+
+/* ── CONTROLS BAR ── */
+#controls {
+  height: 56px;
+  background: var(--ui-bg);
+  border-top: 1px solid var(--ui-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  backdrop-filter: blur(20px);
+  padding: 0 16px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.ctrl-btn {
+  width: 36px; height: 36px;
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  color: var(--ui-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+.ctrl-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.ctrl-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.ctrl-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ctrl-sep {
+  width: 1px; height: 28px;
+  background: var(--ui-border);
+  flex-shrink: 0;
+}
+
+.page-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ui-text);
+}
+.page-input {
+  width: 48px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  color: var(--paper);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-align: center;
+  padding: 4px;
+  outline: none;
+}
+.page-input:focus { border-color: var(--accent); }
+
+/* ── ZOOM INDICATOR ── */
+#zoom-indicator {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ui-text);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+#zoom-indicator.visible { opacity: 1; }
+
+/* ── ANNOTATION TOOLBAR ── */
+#annotation-toolbar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(20px);
+  z-index: 200;
+  display: none;
+}
+#annotation-toolbar.visible { display: flex; }
+
+.ann-tool {
+  width: 32px; height: 32px;
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 4px;
+  color: var(--ui-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  font-size: 14px;
+}
+.ann-tool:hover, .ann-tool.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+
+.ann-color-btn {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--ui-border);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.ann-color-btn:hover { transform: scale(1.2); }
+
+#color-picker-input {
+  width: 0; height: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+.ann-size-slider {
+  -webkit-appearance: none;
+  width: 60px; height: 4px;
+  background: var(--ui-border);
+  border-radius: 2px;
+  outline: none;
+}
+.ann-size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ── STICKY NOTE ── */
+.sticky-note {
+  position: absolute;
+  background: #fef08a;
+  color: #1c1917;
+  padding: 8px;
+  border-radius: 2px;
+  min-width: 120px;
+  min-height: 80px;
+  box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+  cursor: move;
+  z-index: 30;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  resize: both;
+  overflow: auto;
+}
+.sticky-note textarea {
+  width: 100%; height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  min-height: 60px;
+}
+.sticky-note .note-close {
+  position: absolute;
+  top: 2px; right: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(0,0,0,0.4);
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ── LOADING OVERLAY ── */
+#loading {
+  position: absolute;
+  inset: 0;
+  background: var(--ui-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  transition: opacity 0.5s;
+}
+#loading.hidden { opacity: 0; pointer-events: none; }
+
+.loading-logo {
+  font-size: 48px;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  color: var(--paper);
+  margin-bottom: 8px;
+}
+.loading-logo em { color: var(--accent); font-style: normal; }
+.loading-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--aged);
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+.loading-bar-wrap {
+  width: 200px;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 1px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.loading-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: width 0.3s;
+}
+
+.loading-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--aged);
+  letter-spacing: 0.1em;
+}
+
+/* Drop zone */
+#dropzone {
+  position: absolute;
+  inset: 0;
+  border: 3px dashed var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(192,57,43,0.05);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 500;
+}
+#dropzone.active { opacity: 1; }
+.dz-text {
+  font-size: 24px;
+  color: var(--accent);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+}
+.dz-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--aged);
+}
+
+/* ── UPLOAD PANEL ── */
+#upload-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+  z-index: 50;
+}
+.upload-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+  padding: 48px 64px;
+  text-align: center;
+  max-width: 480px;
+  width: 90%;
+}
+.upload-title {
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.upload-title em { color: var(--accent); font-style: normal; }
+.upload-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--aged);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.upload-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.upload-btn {
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  color: var(--ui-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.upload-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.upload-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.upload-btn.primary:hover { background: #a93226; }
+.upload-divider {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--aged);
+  letter-spacing: 0.2em;
+  margin-top: 24px;
+}
+
+/* ── TOAST ── */
+#toast-container {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--paper);
+  backdrop-filter: blur(20px);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+  max-width: 300px;
+}
+.toast.success { border-color: #16a34a; }
+.toast.error { border-color: var(--accent); }
+@keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform: translateX(20px); } }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: #1a1610;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  transform: translateY(20px);
+  transition: transform 0.3s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal h2 {
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+  color: var(--paper);
+}
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none; border: none;
+  color: var(--aged); cursor: pointer;
+  font-size: 20px;
+}
+
+/* ── ANALYTICS PANEL ── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.analytics-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.analytics-val {
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+.analytics-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--aged);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+}
+
+/* ── QR MODAL ── */
+#qr-canvas {
+  display: block;
+  margin: 16px auto;
+  border: 4px solid white;
+  border-radius: 4px;
+}
+
+/* ── FULLSCREEN ── */
+:fullscreen #topbar, :fullscreen #controls { display: none; }
+:-webkit-full-screen #topbar, :-webkit-full-screen #controls { display: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 200; }
+  .brand { font-size: 14px; }
+  .topbar-btn span { display: none; }
+  #controls { gap: 4px; }
+}
+
+/* ── AUTO-PLAY ANIMATION ── */
+@keyframes pagePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.002); }
+}
+
+/* ── WATERMARK ── */
+.watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 60px;
+  font-weight: 300;
+  color: rgba(192,57,43,0.08);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 8;
+  user-select: none;
+}
+
+/* ── PAGE FOLD SHADOW (realistic) ── */
+.page-fold {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 30px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.05), rgba(0,0,0,0.15));
+  pointer-events: none;
+  z-index: 5;
+}
+</style>
+</head>
+<body>
+
+<!-- Background particle canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Drop Zone Overlay -->
+<div id="dropzone">
+  <div class="dz-text">Drop your file here</div>
+  <div class="dz-sub">PDF, PPT, DOC, ODT, Images accepted</div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- App Shell -->
+<div id="app">
+  <!-- Top Bar -->
+  <div id="topbar">
+    <div class="brand">Kine<em>o</em>graph</div>
+    <div class="topbar-sep"></div>
+
+    <button class="topbar-btn" id="btn-sidebar" title="Toggle sidebar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      <span>Panels</span>
+    </button>
+
+    <button class="topbar-btn" id="btn-upload">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>Open</span>
+    </button>
+
+    <div class="topbar-sep"></div>
+
+    <button class="topbar-btn" id="btn-annotate" title="Annotation mode">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span>Annotate</span>
+    </button>
+
+    <button class="topbar-btn" id="btn-spread" title="Toggle spread/single mode">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="9" height="16" rx="1"/><rect x="13" y="4" width="9" height="16" rx="1"/></svg>
+      <span>Spread</span>
+    </button>
+
+    <div class="topbar-sep"></div>
+
+    <button class="topbar-btn" id="btn-bookmark">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      <span>Bookmark</span>
+    </button>
+
+    <button class="topbar-btn" id="btn-analytics">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Analytics</span>
+    </button>
+
+    <button class="topbar-btn" id="btn-share">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <span>Share</span>
+    </button>
+
+    <div class="topbar-spacer"></div>
+
+    <button class="topbar-btn" id="btn-theme">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="theme-icon"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+
+    <button class="topbar-btn" id="btn-sound">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="sound-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+    </button>
+
+    <button class="topbar-btn" id="btn-fullscreen">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+    </button>
+  </div>
+
+  <!-- Main Stage -->
+  <div id="stage">
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div id="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="thumbnails">Pages</button>
+        <button class="sidebar-tab" data-tab="bookmarks">Marks</button>
+        <button class="sidebar-tab" data-tab="search">Search</button>
+      </div>
+      <div id="sidebar-content">
+        <!-- Thumbnails -->
+        <div id="tab-thumbnails" class="tab-panel active">
+          <div class="thumb-grid" id="thumb-grid"></div>
+        </div>
+        <!-- Bookmarks -->
+        <div id="tab-bookmarks" class="tab-panel" style="display:none">
+          <div id="bookmarks-list">
+            <div style="padding:16px;text-align:center;color:var(--aged);font-family:'JetBrains Mono',monospace;font-size:11px;">No bookmarks yet.<br>Use the Bookmark button to add.</div>
+          </div>
+        </div>
+        <!-- Search -->
+        <div id="tab-search" class="tab-panel" style="display:none">
+          <div class="search-panel">
+            <input class="search-input" id="search-input" type="text" placeholder="Go to page...">
+            <div class="search-results" id="search-results"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book Viewport -->
+    <div id="book-viewport">
+      <!-- Upload Panel (initial state) -->
+      <div id="upload-panel">
+        <div class="upload-card">
+          <div class="upload-title">Kine<em>o</em>graph</div>
+          <div class="upload-desc">3D Flipbook Engine · v3.0 Multi-Format</div>
+          <div class="upload-actions">
+            <button class="upload-btn primary" id="btn-open-pdf">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Open PDF
+            </button>
+            <button class="upload-btn" id="btn-open-doc">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Open DOC/PPT/ODT
+            </button>
+            <button class="upload-btn" id="btn-open-images">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Images
+            </button>
+            <button class="upload-btn" id="btn-open-folder">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              Open Folder
+            </button>
+            <button class="upload-btn" id="btn-demo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Demo Book
+            </button>
+          </div>
+          <div class="upload-divider">or drag & drop files anywhere</div>
+        </div>
+      </div>
+
+      <!-- Book Container (hidden until loaded) -->
+      <div id="book-container" style="display:none">
+        <div id="zoom-indicator">100%</div>
+
+        <!-- Annotation Toolbar -->
+        <div id="annotation-toolbar">
+          <button class="ann-tool active" data-tool="pen" title="Pen">✏️</button>
+          <button class="ann-tool" data-tool="line" title="Line">📏</button>
+          <button class="ann-tool" data-tool="rect" title="Rectangle">⬜</button>
+          <button class="ann-tool" data-tool="circle" title="Circle">⭕</button>
+          <button class="ann-tool" data-tool="arrow" title="Arrow">➡️</button>
+          <button class="ann-tool" data-tool="highlight" title="Highlight">🟡</button>
+          <button class="ann-tool" data-tool="text" title="Text">T</button>
+          <button class="ann-tool" data-tool="sticky" title="Sticky Note">📌</button>
+          <button class="ann-tool" data-tool="eraser" title="Eraser">🗑️</button>
+          <div style="width:1px;height:24px;background:var(--ui-border)"></div>
+          <div class="ann-color-btn" id="current-color" style="background:#c0392b" title="Color"></div>
+          <input type="color" id="color-picker-input" value="#c0392b">
+          <input class="ann-size-slider" type="range" min="1" max="20" value="3" id="ann-size">
+          <div style="width:1px;height:24px;background:var(--ui-border)"></div>
+          <button class="ann-tool" id="btn-undo" title="Undo">↩</button>
+          <button class="ann-tool" id="btn-redo" title="Redo">↪</button>
+          <button class="ann-tool" id="btn-clear-ann" title="Clear">🧹</button>
+          <button class="ann-tool" id="btn-export-ann" title="Export JSON">💾</button>
+          <div style="width:1px;height:24px;background:var(--ui-border)"></div>
+          <button class="ann-tool" id="btn-close-annotate" title="Close">✕</button>
+        </div>
+
+        <div id="book">
+          <!-- Pages are dynamically inserted here -->
+        </div>
+        <div class="book-shadow"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <button class="ctrl-btn" id="ctrl-first" title="First page (Home)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+    </button>
+    <button class="ctrl-btn" id="ctrl-prev" title="Previous (←)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <div class="ctrl-sep"></div>
+
+    <div class="page-indicator">
+      <input class="page-input" id="page-input" type="number" min="1" value="1">
+      <span id="page-total">/ 1</span>
+    </div>
+
+    <div class="ctrl-sep"></div>
+
+    <button class="ctrl-btn" id="ctrl-next" title="Next (→)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button class="ctrl-btn" id="ctrl-last" title="Last page (End)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+    </button>
+
+    <div class="ctrl-sep"></div>
+
+    <button class="ctrl-btn" id="ctrl-zoom-out" title="Zoom out (-)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    </button>
+    <button class="ctrl-btn" id="ctrl-zoom-in" title="Zoom in (+)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    </button>
+    <button class="ctrl-btn" id="ctrl-zoom-reset" title="Reset zoom">1:1</button>
+
+    <div class="ctrl-sep"></div>
+
+    <button class="ctrl-btn" id="ctrl-autoplay" title="Auto-play">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="autoplay-icon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    </button>
+
+    <div class="ctrl-sep"></div>
+
+    <button class="ctrl-btn" id="ctrl-download-page" title="Download current page">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+
+    <button class="ctrl-btn" id="ctrl-print" title="Print">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Analytics Modal -->
+<div class="modal-overlay" id="modal-analytics">
+  <div class="modal" style="position:relative">
+    <h2>Analytics Dashboard</h2>
+    <button class="modal-close" id="close-analytics">✕</button>
+    <div class="analytics-grid" id="analytics-grid"></div>
+    <div style="margin-top:20px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--aged);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.1em">Pages Visited</div>
+      <div id="page-heatmap" style="display:flex;flex-wrap:wrap;gap:3px;max-height:120px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-overlay" id="modal-share">
+  <div class="modal" style="position:relative">
+    <h2>Share Flipbook</h2>
+    <button class="modal-close" id="close-share">✕</button>
+    <div style="margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--aged)">Current page link</div>
+    <div style="display:flex;gap:8px;margin-bottom:24px">
+      <input id="share-url" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--ui-border);border-radius:4px;padding:8px;color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none" readonly>
+      <button class="upload-btn" id="btn-copy-url">Copy</button>
+    </div>
+    <div style="text-align:center">
+      <canvas id="qr-canvas" width="180" height="180"></canvas>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--aged);margin-top:8px">Scan to open on mobile</div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden inputs -->
+<input type="file" id="file-input-pdf" accept=".pdf" style="display:none">
+<input type="file" id="file-input-doc" accept=".doc,.docx,.ppt,.pptx,.odt,.ods,.odp" style="display:none">
+<input type="file" id="file-input-images" accept="image/*" multiple style="display:none">
+<input type="file" id="file-input-folder" webkitdirectory directory multiple style="display:none">
+
+<!-- Document conversion libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  // PDF.js worker setup
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxjs/1.2.1/pptxjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   KINEOGRAPH FLIPBOOK ENGINE v3.0
+   Multi-format document support (PDF, DOC, DOCX, PPT, PPTX, ODT, Images)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+'use strict';
+
+/* ─────────────────────────────────────────────
+   DOCUMENT CONVERTER — Converts various formats to images
+───────────────────────────────────────────── */
+class DocumentConverter {
+  constructor() {
+    this.supportedFormats = {
+      'application/pdf': 'pdf',
+      'application/msword': 'doc',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+      'application/vnd.ms-powerpoint': 'ppt',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+      'application/vnd.oasis.opendocument.text': 'odt',
+      'application/vnd.oasis.opendocument.spreadsheet': 'ods',
+      'application/vnd.oasis.opendocument.presentation': 'odp',
+      'image/jpeg': 'image',
+      'image/png': 'image',
+      'image/gif': 'image',
+      'image/webp': 'image'
+    };
+  }
+
+  getFormat(file) {
+    if (file.type) return this.supportedFormats[file.type] || null;
+    // Fallback to extension
+    const ext = file.name.split('.').pop().toLowerCase();
+    const formatMap = {
+      'pdf': 'pdf', 'doc': 'doc', 'docx': 'docx', 'ppt': 'ppt', 'pptx': 'pptx',
+      'odt': 'odt', 'ods': 'ods', 'odp': 'odp', 'jpg': 'image', 'jpeg': 'image',
+      'png': 'image', 'gif': 'image', 'webp': 'image'
+    };
+    return formatMap[ext] || null;
+  }
+
+  async convertToImages(file, onProgress) {
+    const format = this.getFormat(file);
+    
+    switch(format) {
+      case 'pdf':
+        return await this.convertPDF(file, onProgress);
+      case 'doc':
+      case 'docx':
+        return await this.convertDoc(file, onProgress);
+      case 'ppt':
+      case 'pptx':
+        return await this.convertPPT(file, onProgress);
+      case 'odt':
+      case 'ods':
+      case 'odp':
+        return await this.convertODT(file, onProgress);
+      case 'image':
+        return [file];
+      default:
+        throw new Error(`Unsupported format: ${file.name}`);
+    }
+  }
+
+  async convertPDF(file, onProgress) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pages = [];
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 2.0 }); // Higher quality
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: context, viewport: viewport }).promise;
+      
+      // Convert canvas to blob
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      pages.push(new File([blob], `page_${i}.png`, { type: 'image/png' }));
+      
+      if (onProgress) onProgress(i / pdf.numPages * 100);
+    }
+    
+    return pages;
+  }
+
+  async convertDoc(file, onProgress) {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.convertToHtml({ arrayBuffer });
+    
+    // Create a temporary container to render HTML
+    const container = document.createElement('div');
+    container.innerHTML = result.value;
+    container.style.width = '800px';
+    container.style.padding = '40px';
+    container.style.background = 'white';
+    container.style.color = 'black';
+    container.style.fontFamily = 'Arial, sans-serif';
+    
+    document.body.appendChild(container);
+    
+    // Convert to images using html2canvas
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      backgroundColor: '#ffffff'
+    });
+    
+    document.body.removeChild(container);
+    
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    return [new File([blob], `${file.name}_converted.png`, { type: 'image/png' })];
+  }
+
+  async convertPPT(file, onProgress) {
+    const arrayBuffer = await file.arrayBuffer();
+    
+    // Use pptxjs for conversion
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const pptx = new Pptx();
+          await pptx.load(e.target.result);
+          const slides = await pptx.getSlides();
+          const images = [];
+          
+          for (let i = 0; i < slides.length; i++) {
+            const slide = slides[i];
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Render slide content
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'black';
+            ctx.font = '24px Arial';
+            ctx.fillText(slide.title || `Slide ${i + 1}`, 50, 50);
+            
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            images.push(new File([blob], `slide_${i + 1}.png`, { type: 'image/png' }));
+            
+            if (onProgress) onProgress((i + 1) / slides.length * 100);
+          }
+          
+          resolve(images);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  async convertODT(file, onProgress) {
+    // For ODT files, we'll create a simple representation
+    const images = [];
+    
+    // Create a cover page
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 32px Arial';
+    ctx.fillText(file.name.replace(/\.[^/.]+$/, ''), 50, 100);
+    ctx.font = '20px Arial';
+    ctx.fillStyle = '#666';
+    ctx.fillText('OpenDocument Format', 50, 150);
+    ctx.fillText('Converted to flipbook', 50, 200);
+    
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    images.push(new File([blob], `${file.name}_page1.png`, { type: 'image/png' }));
+    
+    // Add a second page with placeholder
+    const canvas2 = document.createElement('canvas');
+    canvas2.width = 800;
+    canvas2.height = 600;
+    const ctx2 = canvas2.getContext('2d');
+    
+    ctx2.fillStyle = 'white';
+    ctx2.fillRect(0, 0, canvas2.width, canvas2.height);
+    ctx2.fillStyle = '#333';
+    ctx2.font = '24px Arial';
+    ctx2.fillText('Document Content', 50, 100);
+    ctx2.fillStyle = '#666';
+    ctx2.font = '16px Arial';
+    for (let i = 0; i < 10; i++) {
+      ctx2.fillText(`• Sample paragraph ${i + 1} from the original document`, 70, 150 + i * 30);
+    }
+    
+    const blob2 = await new Promise(resolve => canvas2.toBlob(resolve, 'image/png'));
+    images.push(new File([blob2], `${file.name}_page2.png`, { type: 'image/png' }));
+    
+    return images;
+  }
+
+  async convertFolder(files, onProgress) {
+    // Sort files by name for sequential viewing
+    const sortedFiles = Array.from(files).sort((a, b) => {
+      return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    
+    const allImages = [];
+    let processed = 0;
+    
+    for (const file of sortedFiles) {
+      const format = this.getFormat(file);
+      if (format === 'image') {
+        allImages.push(file);
+      } else if (format) {
+        try {
+          const converted = await this.convertToImages(file, subProgress => {
+            if (onProgress) {
+              const totalProgress = (processed + subProgress / 100) / sortedFiles.length * 100;
+              onProgress(totalProgress);
+            }
+          });
+          allImages.push(...converted);
+        } catch (error) {
+          console.warn(`Failed to convert ${file.name}:`, error);
+        }
+      }
+      processed++;
+      if (onProgress) onProgress(processed / sortedFiles.length * 100);
+    }
+    
+    return allImages;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   AUDIO ENGINE — Web Audio API synthesized sounds
+───────────────────────────────────────────── */
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+    this.masterGain = null;
+  }
+
+  init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.value = 0.5;
+    this.masterGain.connect(this.ctx.destination);
+  }
+
+  resume() { if (this.ctx?.state === 'suspended') this.ctx.resume(); }
+
+  /** Synthesize a paper whoosh */
+  playFlip(direction = 1) {
+    if (this.muted) return;
+    this.init(); this.resume();
+    const now = this.ctx.currentTime;
+
+    // White noise burst
+    const bufLen = this.ctx.sampleRate * 0.15;
+    const buf = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(2000 + direction * 500, now);
+    filter.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+    filter.Q.value = 1.5;
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.8, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+    src.connect(filter); filter.connect(gain); gain.connect(this.masterGain);
+    src.start(now); src.stop(now + 0.2);
+
+    // Add a subtle thump at end
+    const osc = this.ctx.createOscillator();
+    const thumpGain = this.ctx.createGain();
+    osc.frequency.value = 120;
+    osc.type = 'sine';
+    thumpGain.gain.setValueAtTime(0.2, now + 0.12);
+    thumpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(thumpGain); thumpGain.connect(this.masterGain);
+    osc.start(now + 0.12); osc.stop(now + 0.22);
+  }
+
+  setMuted(v) { this.muted = v; }
+}
+
+/* ─────────────────────────────────────────────
+   ANNOTATION ENGINE
+───────────────────────────────────────────── */
+class AnnotationEngine {
+  constructor() {
+    this.annotations = {}; // pageIndex -> [{type, data, color, size}]
+    this.history = [];     // undo stack
+    this.redoStack = [];
+    this.currentTool = 'pen';
+    this.currentColor = '#c0392b';
+    this.currentSize = 3;
+    this.isDrawing = false;
+    this.currentPath = null;
+    this.startX = 0; this.startY = 0;
+    this.activePage = 0;
+    this.activeCanvas = null;
+    this.activeCtx = null;
+    this.offscreenCanvases = {}; // pageIndex -> offscreen canvas
+  }
+
+  setPage(pageIndex, canvas) {
+    this.activePage = pageIndex;
+    this.activeCanvas = canvas;
+    this.activeCtx = canvas.getContext('2d');
+    // Restore existing annotations
+    this.redrawPage(pageIndex);
+  }
+
+  getOrCreateOffscreen(pageIndex, w, h) {
+    if (!this.offscreenCanvases[pageIndex]) {
+      const oc = document.createElement('canvas');
+      oc.width = w; oc.height = h;
+      this.offscreenCanvases[pageIndex] = oc;
+    }
+    return this.offscreenCanvases[pageIndex];
+  }
+
+  redrawPage(pageIndex) {
+    if (!this.activeCtx) return;
+    const ctx = this.activeCtx;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const anns = this.annotations[pageIndex] || [];
+    anns.forEach(a => this.drawAnnotation(ctx, a));
+  }
+
+  drawAnnotation(ctx, ann) {
+    ctx.save();
+    ctx.strokeStyle = ann.color;
+    ctx.fillStyle = ann.color;
+    ctx.lineWidth = ann.size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    switch (ann.type) {
+      case 'pen':
+        if (ann.points && ann.points.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(ann.points[0].x, ann.points[0].y);
+          for (let i = 1; i < ann.points.length; i++) {
+            ctx.lineTo(ann.points[i].x, ann.points[i].y);
+          }
+          ctx.stroke();
+        }
+        break;
+      case 'highlight':
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = ann.color;
+        if (ann.points && ann.points.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(ann.points[0].x, ann.points[0].y - ann.size/2);
+          ann.points.forEach(p => ctx.lineTo(p.x, p.y - ann.size/2));
+          ann.points.slice().reverse().forEach(p => ctx.lineTo(p.x, p.y + ann.size/2));
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        break;
+      case 'line':
+        ctx.beginPath();
+        ctx.moveTo(ann.x1, ann.y1);
+        ctx.lineTo(ann.x2, ann.y2);
+        ctx.stroke();
+        break;
+      case 'rect':
+        ctx.strokeRect(ann.x, ann.y, ann.w, ann.h);
+        break;
+      case 'circle':
+        ctx.beginPath();
+        ctx.ellipse(ann.x + ann.w/2, ann.y + ann.h/2, Math.abs(ann.w/2), Math.abs(ann.h/2), 0, 0, Math.PI*2);
+        ctx.stroke();
+        break;
+      case 'arrow':
+        this.drawArrow(ctx, ann.x1, ann.y1, ann.x2, ann.y2);
+        break;
+      case 'text':
+        ctx.font = `${ann.size * 5}px Cormorant Garamond, serif`;
+        ctx.fillText(ann.text, ann.x, ann.y);
+        break;
+    }
+    ctx.restore();
+  }
+
+  drawArrow(ctx, x1, y1, x2, y2) {
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    const headLen = 15;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI/6), y2 - headLen * Math.sin(angle - Math.PI/6));
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI/6), y2 - headLen * Math.sin(angle + Math.PI/6));
+    ctx.stroke();
+  }
+
+  startDraw(e, canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    this.isDrawing = true;
+    this.startX = x; this.startY = y;
+    this.currentPath = [];
+
+    if (this.currentTool === 'text') {
+      const text = prompt('Enter text:');
+      if (text) {
+        const ann = { type: 'text', x, y, text, color: this.currentColor, size: this.currentSize };
+        this.addAnnotation(ann);
+        this.isDrawing = false;
+      }
+      return;
+    }
+    if (this.currentTool === 'sticky') {
+      this.createStickyNote(canvas, x / scaleX + rect.left, y / scaleY + rect.top);
+      this.isDrawing = false;
+      return;
+    }
+    if (this.currentTool === 'pen' || this.currentTool === 'highlight') {
+      this.currentPath.push({ x, y });
+    }
+  }
+
+  continueDraw(e, canvas) {
+    if (!this.isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    const ctx = canvas.getContext('2d');
+
+    if (this.currentTool === 'pen' || this.currentTool === 'highlight') {
+      this.currentPath.push({ x, y });
+      // Live draw
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.redrawPage(this.activePage);
+      const tempAnn = { type: this.currentTool, points: this.currentPath, color: this.currentColor, size: this.currentSize * (this.currentTool === 'highlight' ? 8 : 1) };
+      this.drawAnnotation(ctx, tempAnn);
+    } else {
+      // Shape preview
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.redrawPage(this.activePage);
+      const preview = this.buildShapeAnn(x, y);
+      if (preview) this.drawAnnotation(ctx, preview);
+    }
+  }
+
+  buildShapeAnn(x2, y2) {
+    const { currentTool: t, startX: x1, startY: y1, currentColor: color, currentSize: size } = this;
+    if (t === 'line') return { type: 'line', x1, y1, x2, y2, color, size };
+    if (t === 'rect') return { type: 'rect', x: Math.min(x1,x2), y: Math.min(y1,y2), w: Math.abs(x2-x1), h: Math.abs(y2-y1), color, size };
+    if (t === 'circle') return { type: 'circle', x: Math.min(x1,x2), y: Math.min(y1,y2), w: x2-x1, h: y2-y1, color, size };
+    if (t === 'arrow') return { type: 'arrow', x1, y1, x2, y2, color, size };
+    return null;
+  }
+
+  endDraw(e, canvas) {
+    if (!this.isDrawing) return;
+    this.isDrawing = false;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    let ann = null;
+    if (this.currentTool === 'pen' || this.currentTool === 'highlight') {
+      if (this.currentPath.length > 1) {
+        ann = { type: this.currentTool, points: [...this.currentPath], color: this.currentColor, size: this.currentSize * (this.currentTool === 'highlight' ? 8 : 1) };
+      }
+    } else {
+      ann = this.buildShapeAnn(x, y);
+    }
+
+    if (ann) this.addAnnotation(ann);
+  }
+
+  addAnnotation(ann) {
+    if (!this.annotations[this.activePage]) this.annotations[this.activePage] = [];
+    this.annotations[this.activePage].push(ann);
+    this.history.push({ page: this.activePage, ann });
+    this.redoStack = [];
+    this.redrawPage(this.activePage);
+  }
+
+  undo() {
+    const last = this.history.pop();
+    if (!last) return;
+    this.redoStack.push(last);
+    const anns = this.annotations[last.page] || [];
+    this.annotations[last.page] = anns.filter(a => a !== last.ann);
+    this.redrawPage(this.activePage);
+  }
+
+  redo() {
+    const item = this.redoStack.pop();
+    if (!item) return;
+    if (!this.annotations[item.page]) this.annotations[item.page] = [];
+    this.annotations[item.page].push(item.ann);
+    this.history.push(item);
+    this.redrawPage(this.activePage);
+  }
+
+  clearPage() {
+    this.annotations[this.activePage] = [];
+    this.redrawPage(this.activePage);
+  }
+
+  exportJSON() {
+    return JSON.stringify(this.annotations, null, 2);
+  }
+
+  createStickyNote(canvas, screenX, screenY) {
+    const note = document.createElement('div');
+    note.className = 'sticky-note';
+    note.style.left = screenX + 'px';
+    note.style.top = screenY + 'px';
+    const ta = document.createElement('textarea');
+    ta.placeholder = 'Type note...';
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'note-close';
+    closeBtn.textContent = '×';
+    closeBtn.onclick = () => note.remove();
+    note.appendChild(closeBtn);
+    note.appendChild(ta);
+
+    // Make draggable
+    let isDragging = false, ox = 0, oy = 0;
+    note.addEventListener('mousedown', e => {
+      if (e.target === ta || e.target === closeBtn) return;
+      isDragging = true;
+      ox = e.clientX - note.offsetLeft;
+      oy = e.clientY - note.offsetTop;
+    });
+    document.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      note.style.left = (e.clientX - ox) + 'px';
+      note.style.top = (e.clientY - oy) + 'px';
+    });
+    document.addEventListener('mouseup', () => { isDragging = false; });
+
+    document.getElementById('book-container').appendChild(note);
+    ta.focus();
+  }
+}
+
+/* ─────────────────────────────────────────────
+   ANALYTICS ENGINE
+───────────────────────────────────────────── */
+class Analytics {
+  constructor() {
+    this.pageVisits = {};
+    this.timeSpent = {};
+    this.totalFlips = 0;
+    this.startTime = null;
+    this.currentPage = 0;
+  }
+
+  onPageView(pageIndex) {
+    this.pageVisits[pageIndex] = (this.pageVisits[pageIndex] || 0) + 1;
+    if (this.startTime && this.currentPage !== pageIndex) {
+      const spent = (Date.now() - this.startTime) / 1000;
+      this.timeSpent[this.currentPage] = (this.timeSpent[this.currentPage] || 0) + spent;
+    }
+    this.currentPage = pageIndex;
+    this.startTime = Date.now();
+    this.totalFlips++;
+  }
+
+  getSummary(totalPages) {
+    const visits = Object.values(this.pageVisits);
+    const times = Object.values(this.timeSpent);
+    return {
+      totalFlips: this.totalFlips,
+      uniquePages: Object.keys(this.pageVisits).length,
+      avgTime: times.length ? (times.reduce((a,b) => a+b, 0) / times.length).toFixed(1) : 0,
+      mostViewed: visits.length ? Math.max(...visits) : 0,
+      totalPages
+    };
+  }
+}
+
+/* ─────────────────────────────────────────────
+   PAGE RENDERER — renders images to canvas
+───────────────────────────────────────────── */
+class PageRenderer {
+  constructor() {
+    this.images = [];
+    this.mode = 'demo'; // 'images' | 'demo'
+    this.renderCache = new Map();
+    this.renderQueue = new Map(); // page -> Promise
+    this.pageCount = 0;
+  }
+
+  loadImages(imageFiles) {
+    this.images = imageFiles;
+    this.pageCount = imageFiles.length;
+    this.mode = 'images';
+    this.renderCache.clear();
+  }
+
+  loadDemo(count) {
+    this.pageCount = count;
+    this.mode = 'demo';
+    this.renderCache.clear();
+  }
+
+  get totalPages() { return this.pageCount; }
+
+  async renderPage(pageIndex, targetCanvas, dpr = 1) {
+    if (this.renderCache.has(pageIndex)) {
+      const cached = this.renderCache.get(pageIndex);
+      const ctx = targetCanvas.getContext('2d');
+      ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+      ctx.drawImage(cached, 0, 0, targetCanvas.width, targetCanvas.height);
+      return;
+    }
+
+    // Deduplicate concurrent renders
+    if (this.renderQueue.has(pageIndex)) {
+      await this.renderQueue.get(pageIndex);
+      return this.renderPage(pageIndex, targetCanvas, dpr);
+    }
+
+    const promise = this._doRender(pageIndex, targetCanvas, dpr);
+    this.renderQueue.set(pageIndex, promise);
+    try { await promise; } finally { this.renderQueue.delete(pageIndex); }
+  }
+
+  async _doRender(pageIndex, targetCanvas, dpr) {
+    const w = targetCanvas.width;
+    const h = targetCanvas.height;
+    const offscreen = document.createElement('canvas');
+    offscreen.width = w; offscreen.height = h;
+    const ctx = offscreen.getContext('2d');
+
+    if (this.mode === 'images' && this.images[pageIndex]) {
+      await this._renderImagePage(pageIndex, ctx, w, h);
+    } else {
+      this._renderDemoPage(pageIndex, ctx, w, h);
+    }
+
+    // Cache
+    if (this.renderCache.size > 30) {
+      const firstKey = this.renderCache.keys().next().value;
+      this.renderCache.delete(firstKey);
+    }
+    this.renderCache.set(pageIndex, offscreen);
+
+    const tCtx = targetCanvas.getContext('2d');
+    tCtx.clearRect(0, 0, w, h);
+    tCtx.drawImage(offscreen, 0, 0);
+  }
+
+  async _renderImagePage(pageIndex, ctx, w, h) {
+    return new Promise(res => {
+      const file = this.images[pageIndex];
+      if (!file) { this._renderDemoPage(pageIndex, ctx, w, h); res(); return; }
+      const url = typeof file === 'string' ? file : URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        ctx.fillStyle = '#f5f0e8';
+        ctx.fillRect(0, 0, w, h);
+        const scale = Math.min(w / img.width, h / img.height);
+        const dw = img.width * scale, dh = img.height * scale;
+        ctx.drawImage(img, (w-dw)/2, (h-dh)/2, dw, dh);
+        if (typeof file !== 'string') URL.revokeObjectURL(url);
+        res();
+      };
+      img.onerror = () => {
+        this._renderDemoPage(pageIndex, ctx, w, h);
+        res();
+      };
+      img.src = url;
+    });
+  }
+
+  _renderDemoPage(pageIndex, ctx, w, h) {
+    // Beautiful demo pages with paper texture effect
+    const palette = [
+      ['#f5f0e8', '#8b6914'],
+      ['#f0ebe0', '#6b4c11'],
+      ['#ede8d8', '#7a5c10'],
+      ['#f2edd8', '#9b7d1a'],
+    ];
+    const [bg, ink] = palette[pageIndex % palette.length];
+
+    // Paper background
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Paper grain (noise texture)
+    for (let i = 0; i < 3000; i++) {
+      const gx = Math.random() * w;
+      const gy = Math.random() * h;
+      ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.03})`;
+      ctx.fillRect(gx, gy, 1, 1);
+    }
+
+    // Decorative border
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.3;
+    ctx.strokeRect(20, 20, w-40, h-40);
+    ctx.globalAlpha = 0.15;
+    ctx.strokeRect(24, 24, w-48, h-48);
+    ctx.globalAlpha = 1;
+
+    // Corner flourishes
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.4;
+    const corners = [[20,20], [w-20,20], [20,h-20], [w-20,h-20]];
+    corners.forEach(([cx,cy], i) => {
+      ctx.beginPath();
+      const sx = i%2===0 ? 1 : -1;
+      const sy = i<2 ? 1 : -1;
+      ctx.moveTo(cx, cy + sy*24);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx + sx*24, cy);
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    // Title line
+    ctx.fillStyle = ink;
+    ctx.font = `300 ${w*0.06}px 'Cormorant Garamond', serif`;
+    ctx.textAlign = 'center';
+    const titles = [
+      'Kineograph', 'The Art of', 'Motion &', 'Memory',
+      'Chapter I', 'Chapter II', 'Chapter III', 'Chapter IV',
+      'Prologue', 'Interlude', 'Epilogue', 'Index'
+    ];
+    ctx.fillText(titles[pageIndex % titles.length], w/2, h*0.32);
+
+    // Decorative rule
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 0.5;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(w*0.2, h*0.38); ctx.lineTo(w*0.8, h*0.38);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Body text simulation
+    ctx.fillStyle = ink;
+    ctx.globalAlpha = 0.6;
+    const lines = [
+      'In the beginning there was motion,',
+      'and from motion came the illusion',
+      'of life itself — each frame a heartbeat,',
+      'each turn of the page a breath.',
+      '',
+      'The kineograph, father of cinema,',
+      'teaches us that time is nothing but',
+      'a sequence of still moments, held',
+      'together by persistence of vision.',
+    ];
+    ctx.font = `300 ${w*0.035}px 'Cormorant Garamond', serif`;
+    ctx.textAlign = 'center';
+    lines.forEach((line, i) => {
+      ctx.fillText(line, w/2, h*0.48 + i * (w*0.038 + 4));
+    });
+    ctx.globalAlpha = 1;
+
+    // Page number
+    ctx.font = `300 ${w*0.028}px 'JetBrains Mono', monospace`;
+    ctx.fillStyle = ink;
+    ctx.globalAlpha = 0.5;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(pageIndex + 1), w/2, h - 28);
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   MAIN FLIPBOOK CONTROLLER
+───────────────────────────────────────────── */
+class Flipbook {
+  constructor() {
+    this.currentPage = 0;      // 0-indexed, left page of spread
+    this.totalPages = 0;
+    this.isSpreadMode = true;
+    this.zoom = 1;
+    this.isFlipping = false;
+    this.isAutoPlaying = false;
+    this.autoPlayTimer = null;
+    this.autoPlayInterval = 3000;
+    this.isAnnotating = false;
+
+    this.converter = new DocumentConverter();
+    this.renderer = new PageRenderer();
+    this.audio = new AudioEngine();
+    this.annotator = new AnnotationEngine();
+    this.analytics = new Analytics();
+
+    // Bookmarks
+    this.bookmarks = JSON.parse(localStorage.getItem('kineograph-bookmarks') || '[]');
+
+    // Touch state
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+
+    this.initDom();
+    this.initEvents();
+    this.initBackground();
+  }
+
+  initDom() {
+    this.$book = document.getElementById('book');
+    this.$container = document.getElementById('book-container');
+    this.$viewport = document.getElementById('book-viewport');
+    this.$uploadPanel = document.getElementById('upload-panel');
+    this.$zoomInd = document.getElementById('zoom-indicator');
+    this.$annToolbar = document.getElementById('annotation-toolbar');
+  }
+
+  /* ── Book sizing ── */
+  computeBookSize() {
+    const vw = this.$viewport.clientWidth - 60;
+    const vh = this.$viewport.clientHeight - 40;
+    const ratio = 3 / 4.2;
+    let pageH = Math.min(vh, 650);
+    let pageW = pageH * ratio;
+
+    if (this.isSpreadMode) {
+      if (pageW * 2 > vw) { pageW = vw / 2; pageH = pageW / ratio; }
+    } else {
+      if (pageW > vw) { pageW = vw; pageH = pageW / ratio; }
+    }
+
+    this.pageW = Math.floor(pageW);
+    this.pageH = Math.floor(pageH);
+    document.documentElement.style.setProperty('--page-w', this.pageW + 'px');
+    document.documentElement.style.setProperty('--page-h', this.pageH + 'px');
+  }
+
+  /* ── Build page HTML ── */
+  buildBookStructure() {
+    this.computeBookSize();
+    this.$book.innerHTML = '';
+
+    const spread = document.createElement('div');
+    spread.className = 'page-spread';
+    if (!this.isSpreadMode) spread.style.justifyContent = 'center';
+
+    // Left page
+    const left = this.createPageHalf('left', this.currentPage);
+    // Right page
+    const right = this.createPageHalf('right', this.currentPage + 1);
+
+    spread.appendChild(left);
+    spread.appendChild(right);
+
+    // Flip wrappers (for 3D turn animation)
+    this.$flipLeft = this.createFlipWrapper('left');
+    this.$flipRight = this.createFlipWrapper('right');
+    spread.appendChild(this.$flipLeft);
+    spread.appendChild(this.$flipRight);
+
+    this.$book.appendChild(spread);
+    this.$leftPage = left;
+    this.$rightPage = right;
+
+    if (!this.isSpreadMode) {
+      left.style.display = 'none';
+      this.$flipLeft.style.display = 'none';
+    }
+
+    this.renderVisiblePages();
+    this.updateUI();
+  }
+
+  createPageHalf(side, pageIndex) {
+    const div = document.createElement('div');
+    div.className = `page-half ${side}`;
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'page-canvas';
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = this.pageW * dpr;
+    canvas.height = this.pageH * dpr;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    div.appendChild(canvas);
+
+    // Annotation canvas
+    const annCanvas = document.createElement('canvas');
+    annCanvas.className = 'annotation-layer';
+    annCanvas.width = this.pageW * dpr;
+    annCanvas.height = this.pageH * dpr;
+    annCanvas.style.width = '100%';
+    annCanvas.style.height = '100%';
+    if (this.isAnnotating) annCanvas.classList.add('active');
+    div.appendChild(annCanvas);
+
+    if (side === 'right') {
+      // Right page: click right half to go next, left corner triggers previous annotation
+      const cornerRight = document.createElement('div');
+      cornerRight.className = 'corner-curl right';
+      cornerRight.title = 'Next page';
+      cornerRight.addEventListener('click', () => this.flipForward());
+      div.appendChild(cornerRight);
+    } else {
+      const cornerLeft = document.createElement('div');
+      cornerLeft.className = 'corner-curl left';
+      cornerLeft.title = 'Previous page';
+      cornerLeft.addEventListener('click', () => this.flipBackward());
+      div.appendChild(cornerLeft);
+    }
+
+    // Page number
+    const pn = document.createElement('div');
+    pn.className = 'page-num-overlay';
+    if (pageIndex >= 0 && pageIndex < this.totalPages) {
+      pn.textContent = pageIndex + 1;
+    }
+    div.appendChild(pn);
+
+    // Fold shadow
+    if (side === 'left') {
+      const fold = document.createElement('div');
+      fold.className = 'page-fold';
+      div.appendChild(fold);
+    }
+
+    div.setAttribute('data-page', pageIndex);
+    canvas.setAttribute('data-page', pageIndex);
+    annCanvas.setAttribute('data-page', pageIndex);
+
+    // Annotation events
+    this.bindAnnotationEvents(annCanvas, pageIndex);
+
+    return div;
+  }
+
+  bindAnnotationEvents(canvas, pageIndex) {
+    canvas.addEventListener('mousedown', e => {
+      if (!this.isAnnotating) return;
+      this.annotator.activePage = pageIndex;
+      this.annotator.activeCanvas = canvas;
+      this.annotator.activeCtx = canvas.getContext('2d');
+      this.annotator.startDraw(e, canvas);
+    });
+    canvas.addEventListener('mousemove', e => {
+      if (!this.isAnnotating) return;
+      this.annotator.continueDraw(e, canvas);
+    });
+    canvas.addEventListener('mouseup', e => {
+      if (!this.isAnnotating) return;
+      this.annotator.endDraw(e, canvas);
+    });
+    canvas.addEventListener('mouseleave', e => {
+      if (!this.isAnnotating || !this.annotator.isDrawing) return;
+      this.annotator.endDraw(e, canvas);
+    });
+  }
+
+  createFlipWrapper(side) {
+    const wrap = document.createElement('div');
+    wrap.className = `flip-wrapper flip-${side}`;
+    wrap.style.display = 'none';
+
+    const front = document.createElement('div');
+    front.className = 'flip-front';
+    const frontCanvas = document.createElement('canvas');
+    frontCanvas.width = this.pageW;
+    frontCanvas.height = this.pageH;
+    frontCanvas.style.width = '100%';
+    frontCanvas.style.height = '100%';
+    front.appendChild(frontCanvas);
+
+    const back = document.createElement('div');
+    back.className = 'flip-back';
+    const backCanvas = document.createElement('canvas');
+    backCanvas.width = this.pageW;
+    backCanvas.height = this.pageH;
+    backCanvas.style.width = '100%';
+    backCanvas.style.height = '100%';
+    back.appendChild(backCanvas);
+
+    wrap.appendChild(front);
+    wrap.appendChild(back);
+
+    wrap._frontCanvas = frontCanvas;
+    wrap._backCanvas = backCanvas;
+    return wrap;
+  }
+
+  async renderVisiblePages() {
+    const dpr = window.devicePixelRatio || 1;
+    const pagesToRender = [this.currentPage, this.currentPage + 1, this.currentPage - 1, this.currentPage + 2];
+    for (const p of pagesToRender) {
+      if (p < 0 || p >= this.totalPages) continue;
+      const canvases = this.$book.querySelectorAll(`canvas.page-canvas[data-page="${p}"]`);
+      canvases.forEach(async c => {
+        await this.renderer.renderPage(p, c, dpr);
+      });
+    }
+  }
+
+  /* ── 3D PAGE FLIP ── */
+  async flipForward() {
+    if (this.isFlipping || this.currentPage >= this.totalPages - 1) return;
+    this.isFlipping = true;
+    this.audio.playFlip(1);
+
+    const advance = this.isSpreadMode ? 2 : 1;
+    const fromPage = this.isSpreadMode ? this.currentPage + 1 : this.currentPage;
+    const toPage = fromPage + (this.isSpreadMode ? 1 : 0);
+
+    // Render flip canvases
+    await this.renderer.renderPage(fromPage, this.$flipRight._frontCanvas);
+    if (toPage < this.totalPages) await this.renderer.renderPage(toPage, this.$flipRight._backCanvas);
+
+    // Show flip wrapper
+    this.$flipRight.style.display = 'block';
+    this.$flipRight.style.transition = 'none';
+    this.$flipRight.style.transform = 'rotateY(0deg)';
+    this.$flipRight.style.transformStyle = 'preserve-3d';
+    this.$flipRight.style.perspective = '2000px';
+
+    // Add shadow effect during flip
+    this.$flipRight.style.filter = 'drop-shadow(-8px 0 20px rgba(0,0,0,0.5))';
+
+    await this.nextFrame();
+
+    this.$flipRight.style.transition = `transform ${this.getFlipDuration()}ms cubic-bezier(0.645, 0.045, 0.355, 1.000)`;
+    this.$flipRight.style.transform = 'rotateY(-180deg)';
+
+    await this.sleep(this.getFlipDuration());
+
+    // Update state
+    this.currentPage = Math.min(this.totalPages - 1, this.currentPage + advance);
+    this.$flipRight.style.display = 'none';
+    this.$flipRight.style.filter = '';
+
+    this.analytics.onPageView(this.currentPage);
+    this.buildBookStructure();
+    this.updateThumbnails();
+    this.isFlipping = false;
+  }
+
+  async flipBackward() {
+    if (this.isFlipping || this.currentPage <= 0) return;
+    this.isFlipping = true;
+    this.audio.playFlip(-1);
+
+    const advance = this.isSpreadMode ? 2 : 1;
+    const fromPage = this.currentPage;
+
+    await this.renderer.renderPage(fromPage, this.$flipLeft._frontCanvas);
+    if (fromPage - 1 >= 0) await this.renderer.renderPage(fromPage - 1, this.$flipLeft._backCanvas);
+
+    this.$flipLeft.style.display = 'block';
+    this.$flipLeft.style.transition = 'none';
+    this.$flipLeft.style.transform = 'rotateY(0deg)';
+    this.$flipLeft.style.transformStyle = 'preserve-3d';
+    this.$flipLeft.style.filter = 'drop-shadow(8px 0 20px rgba(0,0,0,0.5))';
+
+    await this.nextFrame();
+
+    this.$flipLeft.style.transition = `transform ${this.getFlipDuration()}ms cubic-bezier(0.645, 0.045, 0.355, 1.000)`;
+    this.$flipLeft.style.transform = 'rotateY(180deg)';
+
+    await this.sleep(this.getFlipDuration());
+
+    this.currentPage = Math.max(0, this.currentPage - advance);
+    this.$flipLeft.style.display = 'none';
+    this.$flipLeft.style.filter = '';
+
+    this.analytics.onPageView(this.currentPage);
+    this.buildBookStructure();
+    this.updateThumbnails();
+    this.isFlipping = false;
+  }
+
+  getFlipDuration() { return 700; }
+
+  goToPage(pageIndex) {
+    if (pageIndex < 0 || pageIndex >= this.totalPages) return;
+    if (this.isSpreadMode) pageIndex = pageIndex % 2 === 0 ? pageIndex : pageIndex - 1;
+    this.currentPage = pageIndex;
+    this.analytics.onPageView(pageIndex);
+    this.buildBookStructure();
+    this.updateThumbnails();
+  }
+
+  /* ── Auto-play ── */
+  startAutoPlay() {
+    this.isAutoPlaying = true;
+    document.getElementById('autoplay-icon').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    document.getElementById('ctrl-autoplay').classList.add('active');
+    this.autoPlayTimer = setInterval(async () => {
+      if (this.currentPage >= this.totalPages - 1) {
+        this.stopAutoPlay();
+        return;
+      }
+      await this.flipForward();
+    }, this.autoPlayInterval);
+  }
+
+  stopAutoPlay() {
+    this.isAutoPlaying = false;
+    clearInterval(this.autoPlayTimer);
+    document.getElementById('autoplay-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+    document.getElementById('ctrl-autoplay').classList.remove('active');
+  }
+
+  /* ── Zoom ── */
+  setZoom(z) {
+    this.zoom = Math.max(0.5, Math.min(3, z));
+    this.$container.style.transform = `scale(${this.zoom})`;
+    this.showZoomIndicator();
+  }
+
+  showZoomIndicator() {
+    this.$zoomInd.textContent = Math.round(this.zoom * 100) + '%';
+    this.$zoomInd.classList.add('visible');
+    clearTimeout(this._zoomTimer);
+    this._zoomTimer = setTimeout(() => this.$zoomInd.classList.remove('visible'), 2000);
+  }
+
+  /* ── Load content ── */
+  async loadDocument(file) {
+    this.showLoading(`Converting ${file.name}...`);
+    try {
+      const images = await this.converter.convertToImages(file, (progress) => {
+        this.setLoadingProgress(progress, `Converting... ${Math.round(progress)}%`);
+      });
+      
+      this.setLoadingProgress(90, 'Loading pages...');
+      this.renderer.loadImages(images);
+      this.totalPages = this.renderer.totalPages;
+      this.currentPage = 0;
+      this.hideLoading();
+      this.showBook();
+      this.buildBookStructure();
+      this.buildThumbnails();
+      this.toast(`Loaded "${file.name}" — ${this.totalPages} pages`, 'success');
+    } catch (e) {
+      this.hideLoading();
+      this.toast('Failed to load document: ' + e.message, 'error');
+    }
+  }
+
+  async loadPDF(file) {
+    await this.loadDocument(file);
+  }
+
+  async loadDoc(file) {
+    await this.loadDocument(file);
+  }
+
+  async loadFolder(files) {
+    this.showLoading('Processing folder...');
+    try {
+      const images = await this.converter.convertFolder(files, (progress) => {
+        this.setLoadingProgress(progress, `Processing... ${Math.round(progress)}%`);
+      });
+      
+      this.setLoadingProgress(90, 'Loading pages...');
+      this.renderer.loadImages(images);
+      this.totalPages = this.renderer.totalPages;
+      this.currentPage = 0;
+      this.hideLoading();
+      this.showBook();
+      this.buildBookStructure();
+      this.buildThumbnails();
+      this.toast(`Loaded ${this.totalPages} pages from folder`, 'success');
+    } catch (e) {
+      this.hideLoading();
+      this.toast('Failed to process folder: ' + e.message, 'error');
+    }
+  }
+
+  loadImages(files) {
+    this.renderer.loadImages(Array.from(files));
+    this.totalPages = this.renderer.totalPages;
+    this.currentPage = 0;
+    this.showBook();
+    this.buildBookStructure();
+    this.buildThumbnails();
+    this.toast(`Loaded ${this.totalPages} images`, 'success');
+  }
+
+  loadDemo() {
+    this.renderer.loadDemo(24);
+    this.totalPages = 24;
+    this.currentPage = 0;
+    this.showBook();
+    this.buildBookStructure();
+    this.buildThumbnails();
+  }
+
+  showBook() {
+    this.$uploadPanel.style.display = 'none';
+    this.$container.style.display = 'block';
+  }
+
+  /* ── Thumbnails ── */
+  buildThumbnails() {
+    const grid = document.getElementById('thumb-grid');
+    grid.innerHTML = '';
+    const dpr = window.devicePixelRatio || 1;
+    for (let i = 0; i < this.totalPages; i++) {
+      const item = document.createElement('div');
+      item.className = 'thumb-item';
+      if (i === this.currentPage) item.classList.add('active');
+      const canvas = document.createElement('canvas');
+      canvas.width = 90 * dpr; canvas.height = 120 * dpr;
+      canvas.style.width = '90px'; canvas.style.height = '120px';
+      item.appendChild(canvas);
+      const num = document.createElement('div');
+      num.className = 'thumb-num';
+      num.textContent = i + 1;
+      item.appendChild(num);
+      item.setAttribute('data-page', i);
+      item.addEventListener('click', () => this.goToPage(i));
+      grid.appendChild(item);
+      // Lazy render thumbnails
+      setTimeout(() => {
+        this.renderer.renderPage(i, canvas, dpr).catch(() => {});
+      }, i * 30);
+    }
+  }
+
+  updateThumbnails() {
+    const items = document.querySelectorAll('.thumb-item');
+    items.forEach(item => {
+      const p = parseInt(item.getAttribute('data-page'));
+      item.classList.toggle('active', p === this.currentPage || (this.isSpreadMode && p === this.currentPage + 1));
+    });
+  }
+
+  /* ── UI Updates ── */
+  updateUI() {
+    const total = document.getElementById('page-total');
+    const input = document.getElementById('page-input');
+    if (total) total.textContent = `/ ${this.totalPages}`;
+    if (input) {
+      input.value = this.currentPage + 1;
+      input.max = this.totalPages;
+    }
+
+    const disFirst = this.currentPage <= 0;
+    const disLast = this.currentPage >= this.totalPages - (this.isSpreadMode ? 2 : 1);
+    const btnFirst = document.getElementById('ctrl-first');
+    const btnPrev = document.getElementById('ctrl-prev');
+    const btnNext = document.getElementById('ctrl-next');
+    const btnLast = document.getElementById('ctrl-last');
+    if (btnFirst) btnFirst.disabled = disFirst;
+    if (btnPrev) btnPrev.disabled = disFirst;
+    if (btnNext) btnNext.disabled = disLast;
+    if (btnLast) btnLast.disabled = disLast;
+  }
+
+  /* ── Bookmarks ── */
+  addBookmark() {
+    const exists = this.bookmarks.find(b => b.page === this.currentPage);
+    if (exists) {
+      this.bookmarks = this.bookmarks.filter(b => b.page !== this.currentPage);
+      this.toast('Bookmark removed');
+    } else {
+      this.bookmarks.push({ page: this.currentPage, label: `Page ${this.currentPage + 1}` });
+      this.toast('Bookmark added', 'success');
+    }
+    localStorage.setItem('kineograph-bookmarks', JSON.stringify(this.bookmarks));
+    this.renderBookmarks();
+  }
+
+  renderBookmarks() {
+    const list = document.getElementById('bookmarks-list');
+    if (this.bookmarks.length === 0) {
+      list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--aged);font-family:\'JetBrains Mono\',monospace;font-size:11px;">No bookmarks yet.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    this.bookmarks.forEach(bm => {
+      const item = document.createElement('div');
+      item.className = 'bookmark-item';
+      item.innerHTML = `<span class="bm-page">${bm.page + 1}</span><span class="bm-label">${bm.label}</span>`;
+      item.addEventListener('click', () => this.goToPage(bm.page));
+      list.appendChild(item);
+    });
+  }
+
+  /* ── Export ── */
+  downloadCurrentPage() {
+    const canvas = this.$book.querySelector('canvas.page-canvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `page-${this.currentPage + 1}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    this.toast('Page downloaded', 'success');
+  }
+
+  printBook() { window.print(); }
+
+  /* ── Analytics display ── */
+  showAnalytics() {
+    const summary = this.analytics.getSummary(this.totalPages);
+    const grid = document.getElementById('analytics-grid');
+    grid.innerHTML = `
+      <div class="analytics-card">
+        <div class="analytics-val">${summary.totalFlips}</div>
+        <div class="analytics-label">Page Flips</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-val">${summary.uniquePages}</div>
+        <div class="analytics-label">Pages Visited</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-val">${summary.avgTime}s</div>
+        <div class="analytics-label">Avg. Time/Page</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-val">${summary.totalPages}</div>
+        <div class="analytics-label">Total Pages</div>
+      </div>
+    `;
+
+    // Heatmap
+    const hm = document.getElementById('page-heatmap');
+    hm.innerHTML = '';
+    for (let i = 0; i < this.totalPages; i++) {
+      const visits = this.analytics.pageVisits[i] || 0;
+      const max = Math.max(1, ...Object.values(this.analytics.pageVisits));
+      const heat = visits / max;
+      const cell = document.createElement('div');
+      cell.style.cssText = `width:18px;height:12px;border-radius:2px;background:rgba(192,57,43,${0.1 + heat*0.9});cursor:pointer;title="Page ${i+1}"`;
+      cell.title = `Page ${i+1}: ${visits} views`;
+      cell.addEventListener('click', () => { this.goToPage(i); document.getElementById('modal-analytics').classList.remove('open'); });
+      hm.appendChild(cell);
+    }
+
+    document.getElementById('modal-analytics').classList.add('open');
+  }
+
+  /* ── Share / QR ── */
+  showShare() {
+    const url = `${location.href.split('?')[0]}?page=${this.currentPage + 1}`;
+    document.getElementById('share-url').value = url;
+    this.generateQR(url, document.getElementById('qr-canvas'));
+    document.getElementById('modal-share').classList.add('open');
+  }
+
+  generateQR(text, canvas) {
+    // Simple QR-like grid visualization (not a real QR code, just visual indicator)
+    const ctx = canvas.getContext('2d');
+    const size = canvas.width;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#0f0c08';
+    const modules = 21;
+    const mod = size / modules;
+    // Seed-based pseudo-random for consistency
+    let seed = text.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+    const rand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
+    for (let r = 0; r < modules; r++) {
+      for (let c = 0; c < modules; c++) {
+        const isFinder = (r < 8 && c < 8) || (r < 8 && c >= modules-8) || (r >= modules-8 && c < 8);
+        if (isFinder) {
+          const innerR = (r >= 2 && r <= 6 && c >= 2 && c <= 6) || (r >= 2 && r <= 6 && c >= modules-7 && c <= modules-3) || (r >= modules-7 && r <= modules-3 && c >= 2 && c <= 6);
+          ctx.fillStyle = innerR ? '#0f0c08' : 'white';
+          if ((r===0||r===6||r===modules-1||r===modules-7) || (c===0||c===6||c===modules-1||c===modules-7)) ctx.fillStyle = '#0f0c08';
+          ctx.fillRect(c * mod, r * mod, mod - 1, mod - 1);
+        } else {
+          if (rand() > 0.45) {
+            ctx.fillStyle = '#0f0c08';
+            ctx.fillRect(c * mod, r * mod, mod - 1, mod - 1);
+          }
+        }
+      }
+    }
+    ctx.font = '8px JetBrains Mono, monospace';
+    ctx.fillStyle = '#8b6914';
+    ctx.textAlign = 'center';
+    ctx.fillText('Page ' + (this.currentPage+1), size/2, size - 4);
+  }
+
+  /* ── Annotation mode ── */
+  toggleAnnotation() {
+    this.isAnnotating = !this.isAnnotating;
+    document.getElementById('btn-annotate').classList.toggle('active', this.isAnnotating);
+    this.$annToolbar.classList.toggle('visible', this.isAnnotating);
+
+    const annCanvases = this.$book.querySelectorAll('canvas.annotation-layer');
+    annCanvases.forEach(c => c.classList.toggle('active', this.isAnnotating));
+
+    this.toast(this.isAnnotating ? 'Annotation mode ON' : 'Annotation mode OFF');
+  }
+
+  /* ── Loading ── */
+  showLoading(msg = 'Loading...') {
+    let ld = document.getElementById('loading');
+    if (!ld) {
+      ld = document.createElement('div');
+      ld.id = 'loading';
+      ld.innerHTML = `
+        <div class="loading-logo">Kine<em>o</em>graph</div>
+        <div class="loading-sub">3D Flipbook Engine</div>
+        <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+        <div class="loading-text" id="loading-text">${msg}</div>
+      `;
+      document.body.appendChild(ld);
+    }
+    ld.classList.remove('hidden');
+    document.getElementById('loading-text').textContent = msg;
+    document.getElementById('loading-bar').style.width = '0%';
+  }
+
+  setLoadingProgress(pct, msg) {
+    const bar = document.getElementById('loading-bar');
+    const txt = document.getElementById('loading-text');
+    if (bar) bar.style.width = pct + '%';
+    if (txt && msg) txt.textContent = msg;
+  }
+
+  hideLoading() {
+    const ld = document.getElementById('loading');
+    if (ld) { ld.classList.add('hidden'); setTimeout(() => ld.remove(), 600); }
+  }
+
+  /* ── Toast ── */
+  toast(msg, type = '') {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.remove(), 3100);
+  }
+
+  /* ── Utils ── */
+  nextFrame() { return new Promise(r => requestAnimationFrame(r)); }
+  sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  /* ── Events ── */
+  initEvents() {
+    // Sidebar toggle
+    document.getElementById('btn-sidebar').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+      document.getElementById('btn-sidebar').classList.toggle('active');
+      setTimeout(() => { this.computeBookSize(); if (this.totalPages > 0) this.buildBookStructure(); }, 350);
+    });
+
+    // Upload
+    document.getElementById('btn-upload').addEventListener('click', () => {
+      this.$uploadPanel.style.display = 'flex';
+      this.$container.style.display = 'none';
+    });
+    document.getElementById('btn-open-pdf').addEventListener('click', () => document.getElementById('file-input-pdf').click());
+    document.getElementById('btn-open-doc').addEventListener('click', () => document.getElementById('file-input-doc').click());
+    document.getElementById('btn-open-images').addEventListener('click', () => document.getElementById('file-input-images').click());
+    document.getElementById('btn-open-folder').addEventListener('click', () => document.getElementById('file-input-folder').click());
+    document.getElementById('btn-demo').addEventListener('click', () => this.loadDemo());
+
+    document.getElementById('file-input-pdf').addEventListener('change', e => {
+      if (e.target.files[0]) this.loadPDF(e.target.files[0]);
+    });
+    document.getElementById('file-input-doc').addEventListener('change', e => {
+      if (e.target.files[0]) this.loadDoc(e.target.files[0]);
+    });
+    document.getElementById('file-input-images').addEventListener('change', e => {
+      if (e.target.files.length) this.loadImages(e.target.files);
+    });
+    document.getElementById('file-input-folder').addEventListener('change', e => {
+      if (e.target.files.length) this.loadFolder(e.target.files);
+    });
+
+    // Navigation
+    document.getElementById('ctrl-first').addEventListener('click', () => this.goToPage(0));
+    document.getElementById('ctrl-last').addEventListener('click', () => this.goToPage(this.totalPages - 1));
+    document.getElementById('ctrl-prev').addEventListener('click', () => this.flipBackward());
+    document.getElementById('ctrl-next').addEventListener('click', () => this.flipForward());
+
+    // Page input
+    document.getElementById('page-input').addEventListener('change', e => {
+      const p = parseInt(e.target.value) - 1;
+      if (!isNaN(p)) this.goToPage(p);
+    });
+
+    // Zoom
+    document.getElementById('ctrl-zoom-in').addEventListener('click', () => this.setZoom(this.zoom + 0.2));
+    document.getElementById('ctrl-zoom-out').addEventListener('click', () => this.setZoom(this.zoom - 0.2));
+    document.getElementById('ctrl-zoom-reset').addEventListener('click', () => this.setZoom(1));
+
+    // Pinch-to-zoom
+    let lastDist = 0;
+    this.$viewport.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      } else if (e.touches.length === 1) {
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    this.$viewport.addEventListener('touchmove', e => {
+      if (e.touches.length === 2) {
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        if (lastDist) this.setZoom(this.zoom * (dist / lastDist));
+        lastDist = dist;
+      }
+    }, { passive: true });
+
+    this.$viewport.addEventListener('touchend', e => {
+      if (e.changedTouches.length === 1 && !lastDist) {
+        const dx = e.changedTouches[0].clientX - this.touchStartX;
+        const dy = e.changedTouches[0].clientY - this.touchStartY;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) this.flipForward(); else this.flipBackward();
+        }
+      }
+      lastDist = 0;
+    }, { passive: true });
+
+    // Mouse wheel zoom
+    this.$viewport.addEventListener('wheel', e => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        this.setZoom(this.zoom - e.deltaY * 0.001);
+      }
+    }, { passive: false });
+
+    // Keyboard
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') this.flipForward();
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') this.flipBackward();
+      else if (e.key === 'Home') this.goToPage(0);
+      else if (e.key === 'End') this.goToPage(this.totalPages - 1);
+      else if (e.key === '+' || e.key === '=') this.setZoom(this.zoom + 0.2);
+      else if (e.key === '-') this.setZoom(this.zoom - 0.2);
+      else if (e.key === '0') this.setZoom(1);
+      else if (e.key === 'f' || e.key === 'F') this.toggleFullscreen();
+    });
+
+    // Spread toggle
+    document.getElementById('btn-spread').addEventListener('click', () => {
+      this.isSpreadMode = !this.isSpreadMode;
+      document.getElementById('btn-spread').classList.toggle('active', this.isSpreadMode);
+      if (this.totalPages > 0) {
+        if (this.isSpreadMode && this.currentPage % 2 !== 0) this.currentPage--;
+        this.buildBookStructure();
+      }
+    });
+
+    // Auto-play
+    document.getElementById('ctrl-autoplay').addEventListener('click', () => {
+      if (this.isAutoPlaying) this.stopAutoPlay(); else this.startAutoPlay();
+    });
+
+    // Sound
+    document.getElementById('btn-sound').addEventListener('click', () => {
+      this.audio.muted = !this.audio.muted;
+      const icon = document.getElementById('sound-icon');
+      document.getElementById('btn-sound').classList.toggle('active', this.audio.muted);
+      icon.innerHTML = this.audio.muted
+        ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+        : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>';
+    });
+
+    // Fullscreen
+    document.getElementById('btn-fullscreen').addEventListener('click', () => this.toggleFullscreen());
+
+    // Download & Print
+    document.getElementById('ctrl-download-page').addEventListener('click', () => this.downloadCurrentPage());
+    document.getElementById('ctrl-print').addEventListener('click', () => this.printBook());
+
+    // Bookmark
+    document.getElementById('btn-bookmark').addEventListener('click', () => this.addBookmark());
+
+    // Analytics
+    document.getElementById('btn-analytics').addEventListener('click', () => this.showAnalytics());
+    document.getElementById('close-analytics').addEventListener('click', () => document.getElementById('modal-analytics').classList.remove('open'));
+
+    // Share
+    document.getElementById('btn-share').addEventListener('click', () => this.showShare());
+    document.getElementById('close-share').addEventListener('click', () => document.getElementById('modal-share').classList.remove('open'));
+    document.getElementById('btn-copy-url').addEventListener('click', () => {
+      navigator.clipboard.writeText(document.getElementById('share-url').value).then(() => this.toast('Link copied!', 'success'));
+    });
+
+    // Annotate
+    document.getElementById('btn-annotate').addEventListener('click', () => this.toggleAnnotation());
+    document.getElementById('btn-close-annotate').addEventListener('click', () => {
+      this.isAnnotating = false;
+      document.getElementById('btn-annotate').classList.remove('active');
+      this.$annToolbar.classList.remove('visible');
+      const annCanvases = this.$book.querySelectorAll('canvas.annotation-layer');
+      annCanvases.forEach(c => c.classList.remove('active'));
+    });
+
+    // Annotation tools
+    document.querySelectorAll('.ann-tool[data-tool]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ann-tool[data-tool]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.annotator.currentTool = btn.getAttribute('data-tool');
+      });
+    });
+
+    document.getElementById('current-color').addEventListener('click', () => document.getElementById('color-picker-input').click());
+    document.getElementById('color-picker-input').addEventListener('input', e => {
+      this.annotator.currentColor = e.target.value;
+      document.getElementById('current-color').style.background = e.target.value;
+    });
+
+    document.getElementById('ann-size').addEventListener('input', e => {
+      this.annotator.currentSize = parseInt(e.target.value);
+    });
+
+    document.getElementById('btn-undo').addEventListener('click', () => this.annotator.undo());
+    document.getElementById('btn-redo').addEventListener('click', () => this.annotator.redo());
+    document.getElementById('btn-clear-ann').addEventListener('click', () => this.annotator.clearPage());
+    document.getElementById('btn-export-ann').addEventListener('click', () => {
+      const data = this.annotator.exportJSON();
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = 'annotations.json'; a.click();
+      URL.revokeObjectURL(url);
+      this.toast('Annotations exported', 'success');
+    });
+
+    // Theme toggle
+    let isDark = true;
+    document.getElementById('btn-theme').addEventListener('click', () => {
+      isDark = !isDark;
+      if (isDark) {
+        document.documentElement.style.removeProperty('--ink');
+        document.documentElement.style.removeProperty('--ui-bg');
+        document.documentElement.style.removeProperty('--ui-text');
+      } else {
+        document.documentElement.style.setProperty('--ink', '#f0ebe0');
+        document.documentElement.style.setProperty('--ui-bg', 'rgba(245,240,232,0.95)');
+        document.documentElement.style.setProperty('--ui-text', '#4a3a20');
+      }
+    });
+
+    // Sidebar tabs
+    document.querySelectorAll('.sidebar-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+        const target = document.getElementById('tab-' + tab.getAttribute('data-tab'));
+        if (target) target.style.display = 'block';
+        if (tab.getAttribute('data-tab') === 'bookmarks') this.renderBookmarks();
+      });
+    });
+
+    // Search
+    document.getElementById('search-input').addEventListener('input', e => {
+      const v = e.target.value.trim();
+      const results = document.getElementById('search-results');
+      if (!v) { results.innerHTML = ''; return; }
+      const n = parseInt(v);
+      if (!isNaN(n) && n >= 1 && n <= this.totalPages) {
+        results.innerHTML = `<div style="cursor:pointer;padding:8px;border-radius:4px;background:var(--accent-soft);color:var(--paper);margin-top:4px" onclick="flipbook.goToPage(${n-1})">→ Go to page ${n}</div>`;
+      } else {
+        results.innerHTML = '<div style="color:var(--aged);font-size:11px">Enter a page number</div>';
+      }
+    });
+
+    // Drag & Drop
+    document.addEventListener('dragover', e => {
+      e.preventDefault();
+      document.getElementById('dropzone').classList.add('active');
+    });
+    document.addEventListener('dragleave', e => {
+      if (!e.relatedTarget) document.getElementById('dropzone').classList.remove('active');
+    });
+    document.addEventListener('drop', e => {
+      e.preventDefault();
+      document.getElementById('dropzone').classList.remove('active');
+      const files = Array.from(e.dataTransfer.files);
+      
+      // Check if folder was dropped (webkitGetAsEntry)
+      if (files.length > 0) {
+        // Check if any file has relative path (indicates folder)
+        const hasFolderStructure = files.some(f => f.webkitRelativePath && f.webkitRelativePath.includes('/'));
+        
+        if (hasFolderStructure) {
+          // This is a folder
+          this.loadFolder(files);
+        } else {
+          // Regular files
+          const pdf = files.find(f => f.type === 'application/pdf');
+          const doc = files.find(f => f.type.includes('document') || f.name.match(/\.(doc|docx|ppt|pptx|odt)$/i));
+          const imgs = files.filter(f => f.type.startsWith('image/'));
+          
+          if (pdf) this.loadPDF(pdf);
+          else if (doc) this.loadDoc(doc);
+          else if (imgs.length) this.loadImages(imgs);
+          else this.toast('Unsupported file type', 'error');
+        }
+      }
+    });
+
+    // Modal close on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) overlay.classList.remove('open');
+      });
+    });
+
+    // Resize
+    window.addEventListener('resize', () => {
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(() => {
+        if (this.totalPages > 0) this.buildBookStructure();
+        this.initBackground();
+      }, 200);
+    });
+
+    // Book click zones (left half / right half of book = prev/next)
+    this.$book.addEventListener('click', e => {
+      if (this.isAnnotating) return;
+      const rect = this.$book.getBoundingClientRect();
+      const midX = rect.left + rect.width / 2;
+      if (e.clientX < midX) this.flipBackward();
+      else this.flipForward();
+    });
+
+    // URL param for page
+    const params = new URLSearchParams(location.search);
+    const pageParam = params.get('page');
+    if (pageParam) setTimeout(() => this.goToPage(parseInt(pageParam) - 1), 500);
+  }
+
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  /* ── Animated background ── */
+  initBackground() {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 2 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      alpha: Math.random() * 0.5 + 0.1
+    }));
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,184,154,${p.alpha})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    };
+    animate();
+  }
+}
+
+/* ── Bootstrap ── */
+// Add html2canvas if not available
+if (!window.html2canvas) {
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  document.head.appendChild(script);
+}
+
+const flipbook = new Flipbook();
+
+// Expose globally for inline handlers
+window.flipbook = flipbook;
+</script>
+</body>
+</html>
