@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>কোডিং ম্যাজিক — Enhanced Reader v2</title>
+<title>কোডিং ম্যাজিক — Enhanced Reader</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@300;400;500;600;700&family=Hind+Siliguri:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1070,20 +1070,170 @@ function buildBackCover(){
   d.appendChild(inn);return d;
 }
 function tocRow(l,pg){var r=mk('div','toc-row');var s=mk('span');s.textContent=l;r.appendChild(s);r.appendChild(mk('span','toc-dots'));var p=mk('span','toc-pg');p.textContent=pg;r.appendChild(p);return r;}
+
+function tocSubRow(title, page){
+  var r = mk('div','toc-row sub');
+  var l = mk('span','toc-title');
+  l.textContent = '– ' + title;
+
+  var d = mk('span','toc-dots');
+  d.textContent = '................................................................................';
+
+  var p = mk('span','toc-page');
+  p.textContent = page;
+
+  r.appendChild(l);
+  r.appendChild(d);
+  r.appendChild(p);
+
+  return r;
+}
+
 function buildTocLeft(){
   var d=shell('l','','সূচিপত্র');
-  var ph=mk('div','ph');var t=mk('div','ph-title');t.textContent='সূচিপত্র';ph.appendChild(t);var s=mk('div','ph-sub');s.textContent='TABLE OF CONTENTS';ph.appendChild(s);d.appendChild(ph);
-  var b=mk('div','tocbody');b.style.maxHeight=(PH-90)+'px';
-  var sh=mk('div','toc-shead');sh.textContent='প্রথম খণ্ড: পাইথন প্রোগ্রামিং';b.appendChild(sh);
-  [['ভূমিকা','১'],['সপ্তাহ ১: পাইথন বেসিকস','৫'],['সপ্তাহ ২: কন্ডিশনাল লজিক','৩৩'],['সপ্তাহ ৩: লুপস ও ফাংশনস','৬৭'],['সপ্তাহ ৪: ডিকশনারি ও ডেটা স্ট্রাকচার','১০৫'],['সপ্তাহ ৫: স্ট্রিংস ও ফাইল আই/ও','১৩৫'],['সপ্তাহ ৬: অ্যালগরিদম','১৬৫'],['সপ্তাহ ৭: মিনি প্রজেক্ট','১৯৫']].forEach(function(r){b.appendChild(tocRow(r[0],r[1]));});
-  d.appendChild(b);addCurl(d,'l');return d;
+
+  var ph=mk('div','ph');
+  var t=mk('div','ph-title');
+  t.textContent='সূচিপত্র';
+  ph.appendChild(t);
+
+  var s=mk('div','ph-sub');
+  s.textContent='TABLE OF CONTENTS';
+  ph.appendChild(s);
+
+  d.appendChild(ph);
+
+  var b=mk('div','tocbody');
+  b.style.maxHeight=(PH-90)+'px';
+
+  var sh=mk('div','toc-shead');
+  sh.textContent='প্রথম খণ্ড: পাইথন প্রোগ্রামিং';
+  b.appendChild(sh);
+
+
+  var weeks=[
+
+  {
+    title:'ভূমিকা',
+    page:'১',
+    chapters:[]
+  },
+
+  {
+    title:'সপ্তাহ ১: পাইথন বেসিকস ও ক্রিয়েটিভ লজিক',
+    page:'৫',
+    chapters:[
+      ['অধ্যায় ১: প্রোগ্রামিং কী?','৬'],
+      ['অধ্যায় ২: পাইথনের সঙ্গে পরিচয়','৯'],
+      ['অধ্যায় ৩: ভ্যারিয়েবল','১৩'],
+      ['অধ্যায় ৪: ইনপুট ও আউটপুট','১৭'],
+      ['অধ্যায় ৫: ডেটা টাইপ','২১'],
+      ['অধ্যায় ৬: ফান চ্যালেঞ্জসমূহ','২৫'],
+      ['অধ্যায় ৭: মিনি প্রজেক্ট – ম্যাড লিব টেক্সট রিপ্লেসার','২৯']
+    ]
+  },
+
+  {
+    title:'সপ্তাহ ২: কন্ডিশনাল ও বুলিয়ান লজিক',
+    page:'৩৩',
+    chapters:[
+      ['অধ্যায় ১: সিদ্ধান্ত নেওয়ার শিল্প','৩৪'],
+      ['অধ্যায় ২: একাধিক শর্ত – এলিফ (elif)','৩৮'],
+      ['অধ্যায় ৩: তুলনা অপারেটর','৪১'],
+      ['অধ্যায় ৪: লজিক্যাল অপারেটর','৪৪'],
+      ['অধ্যায় ৫: নেস্টেড ইফ','৪৮'],
+      ['অধ্যায় ৬: বাস্তব জীবনের সমস্যা সমাধান','৫১'],
+      ['অধ্যায় ৭: প্রজেক্ট ১ – গেস দ্য নাম্বার গেম','৫৫'],
+      ['অধ্যায় ৮: প্রজেক্ট ২ – ম্যাজিক ৮ বল','৫৯'],
+      ['অধ্যায় ৯: অ্যাসাইনমেন্ট – ফিডব্যাক সহ নাম্বার গেসিং গেম','৬৩']
+    ]
+  },
+
+  {
+    title:'সপ্তাহ ৩: লুপস, ফাংশনস, লিস্টস ও ক্রিয়েটিভ কোডিং',
+    page:'৬৭',
+    chapters:[
+      ['অধ্যায় ১: পুনরাবৃত্তির জাদু – লুপ','৬৮'],
+      ['অধ্যায় ২: ফাংশন – তোমার নিজের মিনি-মেশিন','৭৫'],
+      ['অধ্যায় ৩: লিস্ট – একসাথে অনেক কিছু রাখো','৮২'],
+      ['অধ্যায় ৪: ক্রিয়েটিভ কোড প্রজেক্টসমূহ','৮৯'],
+      ['অধ্যায় ৫: মিনি প্রজেক্ট – ইমোজি স্টোরি জেনারেটর','৯৮']
+    ]
+  },
+
+  {
+    title:'সপ্তাহ ৪: ডিকশনারি, সেট ও ডেটা স্ট্রাকচার',
+    page:'১০৫',
+    chapters:[
+      ['অধ্যায় ১: ডিকশনারি – কী-ভ্যালু পেয়ার ডেটা','১০৬'],
+      ['অধ্যায় ২: ডিকশনারি মেথডসমূহ','১১১'],
+      ['অধ্যায় ৩: সেট – ডুপ্লিকেট ছাড়া ডেটা','১১৫'],
+      ['অধ্যায় ৪: টাপল – অপরিবর্তনীয় ডেটা','১১৯'],
+      ['অধ্যায় ৫: কখন কোন ডেটা স্ট্রাকচার ব্যবহার করব','১২৩'],
+      ['অধ্যায় ৬: প্রজেক্ট – স্টুডেন্ট গ্রেডবুক এগ্রিগেটর','১২৭']
+    ]
+  },
+
+  {
+    title:'সপ্তাহ ৫: স্ট্রিংস, ফাইল আই/ও ও সিএসভি ডেটা প্রসেসিং',
+    page:'১৩৫',
+    chapters:[
+      ['অধ্যায় ১: স্ট্রিং ম্যানিপুলেশন','১৩৬'],
+      ['অধ্যায় ২: স্ট্রিং মেথডসমূহ','১৪১'],
+      ['অধ্যায় ৩: ফাইল রিডিং ও রাইটিং','১৪৬'],
+      ['অধ্যায় ৪: সিএসভি ফাইল প্রসেসিং','১৫২'],
+      ['অধ্যায় ৫: প্রজেক্ট – সিএসভি রিডার ও স্ট্যাটিসটিক্স ক্যালকুলেটর','১৫৮']
+    ]
+  },
+
+  {
+    title:'সপ্তাহ ৬: অ্যালগরিদম ও প্রবলেম সলভিং',
+    page:'১৬৫',
+    chapters:[
+      ['অধ্যায় ১: অ্যালগরিদম কী?','১৬৬'],
+      ['অধ্যায় ২: প্রবলেম সলভিং মাইন্ডসেট','১৭০'],
+      ['অধ্যায় ৩: লিনিয়ার সার্চ','১৭৪'],
+      ['অধ্যায় ৪: বাইনারি সার্চ','১৭৮'],
+      ['অধ্যায় ৫: সর্টিং অ্যালগরিদম','১৮২'],
+      ['অধ্যায় ৬: প্রজেক্ট – মুভি রেটিং অ্যানালাইজার','১৮৭']
+    ]
+  },
+
+  {
+    title:'সপ্তাহ ৭: রিভিশন ও মিনি প্রজেক্ট',
+    page:'১৯৫',
+    chapters:[
+      ['অধ্যায় ১: প্রথম ৬ সপ্তাহের রিভিশন','১৯৬'],
+      ['অধ্যায় ২: মিনি প্রজেক্ট ১ – কুইজ গেম','২০১'],
+      ['অধ্যায় ৩: মিনি প্রজেক্ট ২ – কন্টাক্ট বুক','২০৭'],
+      ['অধ্যায় ৪: মিনি প্রজেক্ট ৩ – টেম্পারেচার কনভার্টার','২১৩']
+    ]
+  }
+
+  ];
+
+    weeks.forEach(function(w){
+
+      b.appendChild(tocRow(w.title, w.page));
+
+      w.chapters.forEach(function(c){
+        b.appendChild(tocSubRow(c[0],c[1]));
+      });
+
+    });
+
+    d.appendChild(b);
+
+    addCurl(d,'l');
+
+    return d;
 }
 function buildTocRight(){
   var d=shell('r','','সূচিপত্র');
   var ph=mk('div','ph');var t=mk('div','ph-title');t.textContent='সূচিপত্র (চলবে)';ph.appendChild(t);var s=mk('div','ph-sub');s.textContent='TABLE OF CONTENTS';ph.appendChild(s);d.appendChild(ph);
   var b=mk('div','tocbody');b.style.maxHeight=(PH-90)+'px';
   var sh=mk('div','toc-shead');sh.textContent='দ্বিতীয় খণ্ড: জাভাস্ক্রিপ্ট';b.appendChild(sh);
-  [['সপ্তাহ ৮: JS বেসিকস','২২১'],['সপ্তাহ ৯: ডিওএম ম্যানিপুলেশন','২৫৩'],['সপ্তাহ ১০: JS ফাংশনস','২৭৭'],['সপ্তাহ ১১: এপিআই ও জেসন','২৯৯'],['সপ্তাহ ১২: ডিবাগিং','৩২৫'],['সপ্তাহ ১৩: UI পলিশ','৩৪৭'],['সপ্তাহ ১৪: ফাইনাল প্রজেক্ট','৩৬৯']].forEach(function(r){b.appendChild(tocRow(r[0],r[1]));});
+  [['সপ্তাহ ৮: জাভাস্ক্রিপ্ট বেসিকস বনাম পাইথন সিনট্যাক্স','২২১'],['সপ্তাহ ৯: ডিওএম ম্যানিপুলেশন, ইভেন্টস ও ইন্টারঅ্যাকটিভিটি','২৫৩'],['সপ্তাহ ১০: JS ফাংশনস, অ্যারে ও অবজেক্টস','২৭৭'],['সপ্তাহ ১১: এপিআই, ডেটা ফ্লো ও জেসন','২৯৯'],['সপ্তাহ ১২: ডিবাগিং স্ট্র্যাটেজিস ও এরর হ্যান্ডলিং','৩২৫'],['সপ্তাহ ১৩: ডেটা ভিজুয়ালাইজেশন ও UI পলিশ','৩৪৭'],['সপ্তাহ ১৪: ফাইনাল প্রজেক্ট','৩৬৯']].forEach(function(r){b.appendChild(tocRow(r[0],r[1]));});
   var sh2=mk('div','toc-shead');sh2.style.marginTop='7px';sh2.textContent='পরিশিষ্ট';b.appendChild(sh2);
   [['উপসংহার','৩৯৫'],['পাইথন রেফারেন্স','৩৯৮'],['JS রেফারেন্স','৪০০'],['অনলাইন রিসোর্স','৪১০']].forEach(function(r){b.appendChild(tocRow(r[0],r[1]));});
   d.appendChild(b);addCurl(d,'r');return d;
