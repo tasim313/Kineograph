@@ -148,6 +148,8 @@ body{font-family:'Hind Siliguri',sans-serif;background:#080400;color:var(--ink);
 /* PAGE ELEMENTS */
 .pg{background:var(--paper);position:relative;overflow:hidden;flex-shrink:0;
   text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.pg.flow-page{display:flex;flex-direction:column}
+.flow-page .ph,.flow-page .chdr{flex:0 0 auto}
 /* All text inside pages scales with zoom since PW/PH change = font-size vw/vh equivalent changes */
 /* We use explicit px font sizes but scale them via zoom CSS property on .pg */
 .pg.zoom-scale{zoom:var(--pg-zoom,1)}
@@ -182,8 +184,25 @@ body{font-family:'Hind Siliguri',sans-serif;background:#080400;color:var(--ink);
 .ph{padding:14px 20px 7px;border-bottom:1px solid rgba(139,101,32,0.14)}
 .ph-title{font-family:'Noto Serif Bengali',serif;font-size:15px;font-weight:700;color:var(--ink)}
 .ph-sub{font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(139,101,32,0.42);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
-.tocbody{padding:6px 20px;overflow-y:auto}
-.tocbody::-webkit-scrollbar{width:2px}
+.tocbody{
+  padding:6px 20px;
+  overflow-y:scroll;
+  overflow-x:hidden;
+  flex:1 1 auto;
+  min-height:0;
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(212,160,23,0.55) rgba(0,0,0,0.12);
+}
+.tocbody::-webkit-scrollbar{width:8px}
+.tocbody::-webkit-scrollbar-track{background:rgba(0,0,0,0.12)}
+.tocbody::-webkit-scrollbar-thumb{
+  background:rgba(212,160,23,0.5);
+  border-radius:6px;
+  border:2px solid transparent;
+  background-clip:padding-box;
+}
+.tocbody::-webkit-scrollbar-thumb:hover{background:rgba(212,160,23,0.75)}
 .toc-shead{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin:7px 0 4px;padding-bottom:2px;border-bottom:1px solid rgba(192,57,43,0.16)}
 .toc-row{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0 2px 8px;font-family:'Noto Serif Bengali',serif;font-size:9px;color:var(--ink2);position:relative}
 .toc-row::before{content:'';position:absolute;left:1px;top:5px;width:3px;height:1px;background:rgba(139,101,32,0.3)}
@@ -193,8 +212,25 @@ body{font-family:'Hind Siliguri',sans-serif;background:#080400;color:var(--ink);
 .chdr::after{content:'';position:absolute;bottom:0;left:20px;right:20px;height:1px;background:linear-gradient(to right,var(--gold),transparent);opacity:.28}
 .badge{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.12em;color:rgba(192,57,43,0.48);text-transform:uppercase;margin-bottom:2px}
 .chtitle{font-family:'Noto Serif Bengali',serif;font-size:14px;font-weight:700;color:var(--ink);line-height:1.3}
-.cbody{padding:10px 20px;overflow-y:auto}
-.cbody::-webkit-scrollbar{width:2px}
+.cbody{
+  padding:10px 20px;
+  overflow-y:scroll;
+  overflow-x:hidden;
+  flex:1 1 auto;
+  min-height:0;
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(212,160,23,0.55) rgba(0,0,0,0.12);
+}
+.cbody::-webkit-scrollbar{width:8px}
+.cbody::-webkit-scrollbar-track{background:rgba(0,0,0,0.12)}
+.cbody::-webkit-scrollbar-thumb{
+  background:rgba(212,160,23,0.5);
+  border-radius:6px;
+  border:2px solid transparent;
+  background-clip:padding-box;
+}
+.cbody::-webkit-scrollbar-thumb:hover{background:rgba(212,160,23,0.75)}
 .para{font-family:'Noto Serif Bengali',serif;font-size:10.5px;line-height:1.88;color:var(--ink2);text-align:justify;margin-bottom:7px}
 .para strong{color:var(--ink);font-weight:600}
 .lead{font-family:'Noto Serif Bengali',serif;font-size:12px;font-weight:500;color:var(--ink);line-height:1.78;margin-bottom:10px;padding-left:9px;border-left:2px solid var(--red)}
@@ -211,7 +247,89 @@ body{font-family:'Hind Siliguri',sans-serif;background:#080400;color:var(--ink);
 .numlist{list-style:none;counter-reset:nc;margin-bottom:8px}
 .numlist li{font-family:'Noto Serif Bengali',serif;font-size:10px;color:var(--ink2);padding:2px 0 2px 20px;position:relative;line-height:1.65;counter-increment:nc}
 .numlist li::before{content:counter(nc);position:absolute;left:0;width:14px;height:14px;background:var(--red);color:#fff;font-family:'JetBrains Mono',monospace;font-size:7px;display:flex;align-items:center;justify-content:center;border-radius:50%;top:3px}
-.codeblock{background:#0e0600;border-radius:4px;padding:8px 10px;margin:6px 0;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#d4a017;line-height:1.72;border-left:2px solid var(--red)}
+.dtype-table{width:100%;border-collapse:collapse;margin:8px 0;font-family:'Noto Serif Bengali',serif;font-size:9px;color:var(--ink2)}
+.dtype-table th,.dtype-table td{border:1px solid rgba(139,101,32,0.22);padding:5px 6px;vertical-align:top;line-height:1.5}
+.dtype-table th{background:rgba(196,154,60,0.12);color:var(--ink);font-weight:700;text-align:left}
+.dtype-table code{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--ink)}
+.subhead{
+  margin:9px 0 5px;
+  padding:4px 8px;
+  border-left:3px solid rgba(192,57,43,0.45);
+  background:rgba(192,57,43,0.08);
+  border-radius:3px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  color:rgba(120,34,26,0.9);
+}
+.icode{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.92em;
+  color:#6a3f02;
+  background:rgba(196,154,60,0.12);
+  border:1px solid rgba(139,101,32,0.2);
+  border-radius:3px;
+  padding:0 3px;
+}
+.codeblock{
+  position:relative;
+  background:linear-gradient(180deg,#120800 0%,#0e0600 100%);
+  border-radius:6px;
+  padding:10px 11px;
+  margin:8px 0;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;
+  color:#d4a017;
+  line-height:1.72;
+  border:1px solid rgba(212,160,23,0.15);
+  border-left:3px solid var(--red);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);
+  overflow:auto;
+}
+.codeblock.has-label{padding-top:20px}
+.codeblock.has-label::before{
+  content:attr(data-label);
+  position:absolute;
+  top:4px;
+  left:8px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:7px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(212,160,23,0.62);
+}
+.codeblock .code-copy{
+  position:absolute;
+  top:4px;
+  right:6px;
+  border:1px solid rgba(212,160,23,0.25);
+  background:rgba(212,160,23,0.08);
+  color:rgba(212,160,23,0.82);
+  border-radius:3px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:7px;
+  line-height:1;
+  padding:3px 5px;
+  cursor:pointer;
+  opacity:.88;
+}
+.codeblock .code-copy:hover{
+  background:rgba(212,160,23,0.2);
+  color:var(--covergold);
+}
+.codeblock.is-output{
+  border-left-color:var(--green);
+  background:linear-gradient(180deg,#071001 0%,#0c1302 100%);
+  color:#b7e3b9;
+}
+.codepre{
+  margin:0;
+  white-space:pre-wrap;
+  word-break:break-word;
+  user-select:text;
+  -webkit-user-select:text;
+}
 .cm{color:#555;font-size:8.5px;margin-bottom:3px}
 .kw{color:#569cd6}.str{color:#ce9178}.num{color:#b5cea8}.vr{color:#9cdcfe}.out{color:#9cdcfe;margin-top:3px}.cmt{color:#6a9955}
 
@@ -1365,11 +1483,115 @@ function cb(comment,lines,out){
   if(out)h+='<div class="cmt" style="margin-top:3px"># আউটপুট:</div><div class="out">'+out+'</div>';
   return h+'</div>';
 }
+function normalizeChapterMeta(badge,title,run){
+  var chapterRe=/^অধ্যায়\s*([০-৯0-9]+)(?:\s*[:：]\s*(.*))?/;
+  var t=(title||'').match(chapterRe);
+  var r=(run||'').match(chapterRe);
+  if(t){
+    badge='অধ্যায় '+t[1];
+    if(!r||r[1]!==t[1])run=title;
+  }else if(r){
+    badge='অধ্যায় '+r[1];
+  }
+  return{badge:badge,title:title,run:run};
+}
+function fillEmptyCodePre(body){
+  return String(body||'').replace(
+    /<div class="codeblock"><pre class="codepre">\s*<\/pre><\/div>/g,
+    '<div class="codeblock"><pre class="codepre"># Example code\\nprint(\"...\")</pre></div>'
+  );
+}
+function escapeCellHtml(text){
+  return String(text)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+function parsePipeRow(row){
+  var s=String(row||'').trim();
+  if(!s.startsWith('|')||!s.endsWith('|'))return[];
+  return s.slice(1,-1).split('|').map(function(c){return c.trim();});
+}
+function transformPipeTables(body){
+  return String(body||'').replace(/((?:<p class="para">\|[\s\S]*?\|<\/p>\s*){2,})/g,function(block){
+    var rows=[];
+    block.replace(/<p class="para">([\s\S]*?)<\/p>/g,function(_,txt){
+      rows.push(String(txt||'').trim());
+      return _;
+    });
+    if(rows.length<2)return block;
+    // Markdown-like table requires a separator row as second line.
+    if(!/^\|\s*[-:| ]+\|\s*$/.test(rows[1]))return block;
+    var headers=parsePipeRow(rows[0]);
+    if(!headers.length)return block;
+    var dataRows=rows.slice(2).map(parsePipeRow).filter(function(r){return r.length;});
+    if(!dataRows.length)return block;
+
+    var html='<table class="dtype-table"><thead><tr>';
+    headers.forEach(function(h){html+='<th>'+escapeCellHtml(h)+'</th>';});
+    html+='</tr></thead><tbody>';
+    dataRows.forEach(function(r){
+      html+='<tr>';
+      for(var i=0;i<headers.length;i++){
+        html+='<td>'+escapeCellHtml(r[i]||'')+'</td>';
+      }
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+    return html;
+  });
+}
+function enhanceCodeBlocks(container,meta){
+  var isProject=/প্রজেক্ট|project/i.test((meta.title||'')+' '+(meta.run||'')+' '+(meta.badge||''));
+  container.querySelectorAll('.codeblock').forEach(function(block){
+    var pre=block.querySelector('.codepre');
+    if(!pre)return;
+    // Normalize markdown-like bold markers inside pre for cleaner display.
+    var html=pre.innerHTML
+      .replace(/\*\*আউটপুট(?: উদাহরণ)?[:：]?\*\*/g,'আউটপুট:')
+      .replace(/\*\*এক্সট্রা চ্যালেঞ্জ[:：]?\*\*/g,'এক্সট্রা চ্যালেঞ্জ:');
+    pre.innerHTML=html;
+
+    var text=(pre.textContent||'').trim();
+    var isOutput=/^(আউটপুট|output)\s*:?/i.test(text)||/^\s*আউটপুট/i.test(text);
+    var isFn=/(^|\n)\s*(def |function |class )/.test(text);
+
+    var label='';
+    if(isOutput){label='Output';block.classList.add('is-output');}
+    else if(isFn){label='Function / Logic';}
+    else if(isProject){label='Project Code';}
+    else{label='Code Example';}
+    block.classList.add('has-label');
+    block.setAttribute('data-label',label);
+
+    if(!block.querySelector('.code-copy')){
+      var btn=document.createElement('button');
+      btn.type='button';
+      btn.className='code-copy';
+      btn.textContent='COPY';
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        var raw=(pre.innerText||pre.textContent||'').replace(/\n{3,}/g,'\n\n').trim();
+        if(!raw){toast('কপি করার মতো কোড নেই');return;}
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+          navigator.clipboard.writeText(raw).then(function(){toast('কোড কপি হয়েছে');}).catch(function(){toast('কপি ব্যর্থ হয়েছে');});
+        }else{
+          toast('কপি সমর্থিত নয়');
+        }
+      });
+      block.appendChild(btn);
+    }
+  });
+}
 function cpg(side,badge,title,pgNum,run,body){
-  var d=shell(side,pgNum,run);
-  var hdr=mk('div','chdr');var bg=mk('div','badge');bg.textContent=badge;hdr.appendChild(bg);
-  var bt=mk('div','chtitle');bt.textContent=title;hdr.appendChild(bt);d.appendChild(hdr);
-  var b=mk('div','cbody');b.style.maxHeight=(PH-82)+'px';b.innerHTML=body;d.appendChild(b);
+  var meta=normalizeChapterMeta(badge,title,run);
+  body=transformPipeTables(fillEmptyCodePre(body));
+  var d=shell(side,pgNum,meta.run);
+  var hdr=mk('div','chdr');var bg=mk('div','badge');bg.textContent=meta.badge;hdr.appendChild(bg);
+  var bt=mk('div','chtitle');bt.textContent=meta.title;hdr.appendChild(bt);d.appendChild(hdr);
+  var b=mk('div','cbody');b.style.maxHeight=(PH-82)+'px';b.innerHTML=body;enhanceCodeBlocks(b,meta);d.appendChild(b);
   addCurl(d,side==='l'?'l':'r');return d;
 }
 function getSpread(idx){
@@ -1405,12 +1627,12 @@ function getSpread(idx){
       cpg('r',"অধ্যায় ২","কিছু মজার উদাহরণ","14","অধ্যায় ২: পাইথনের সঙ্গে পরিচয়","<p class=\"para\"><strong>উদাহরণ ১: নাম প্রিন্ট করা</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(\"আমার নাম তাসিম\")<br>print(\"আমি প্রোগ্রামিং শিখছি\")</pre></div><p class=\"para\"><strong>উদাহরণ ২: অংক করা</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(5 + 3)<br>print(10 - 4)<br>print(6 * 7)<br>print(20 / 4)<br>print(15 // 2)  # ভাগফল (পূর্ণসংখ্যা)<br>print(15 % 2)   # ভাগশেষ</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">8<br>6<br>42<br>5.0<br>7<br>1</pre></div><p class=\"para\"><strong>উদাহরণ ৩: একাধিক লাইন প্রিন্ট করা</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(\"\"\"এটি একটি<br>মাল্টি-লাইন<br>প্রিন্ট\"\"\")</pre></div>")
     ];
     case 9:return[
-      cpg('l',"অধ্যায় ২","কমেন্ট (মন্তব্য)","15","অধ্যায় ২: পাইথনের সঙ্গে পরিচয়","<p class=\"para\">কমেন্ট হলো কোডের অংশ যা পাইথন এক্সিকিউট করে না। এটা শুধু মানুষ পড়ার জন্য। কমেন্ট দিয়ে আমরা কোডের ব্যাখ্যা লিখে রাখি, বা কোনো অংশ সাময়িকভাবে নিষ্ক্রিয় রাখি।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"এটি একটি কমেন্ট","এটি একটি কমেন্ট","16","এটি একটি কমেন্ট","<p class=\"para\">print(\"Hello\")  # এটাও একটি কমেন্ট</p><p class=\"para\">\"\"\"</p><p class=\"para\">এটি একটি</p><p class=\"para\">মাল্টি-লাইন</p><p class=\"para\">কমেন্ট</p><p class=\"para\">\"\"\"</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"অধ্যায় ২","কমেন্ট (মন্তব্য)","15","অধ্যায় ২: পাইথনের সঙ্গে পরিচয়","<p class=\"para\">কমেন্ট হলো কোডের অংশ যা পাইথন এক্সিকিউট করে না। এটা শুধু মানুষ পড়ার জন্য। কমেন্ট দিয়ে আমরা কোডের ব্যাখ্যা লিখে রাখি, বা কোনো অংশ সাময়িকভাবে নিষ্ক্রিয় রাখি।</p><p class=\"para\">Python-এ ১ লাইনের কমেন্ট লিখতে <span class=\"icode\">#</span> ব্যবহার করা হয়।</p><div class=\"codeblock\"><pre class=\"codepre\"># এটি একটি এক লাইনের কমেন্ট<br>print(\"Hello\")  # লাইনের শেষে কমেন্ট</pre></div>"),
+      cpg('r',"অধ্যায় ২","মাল্টি-লাইন কমেন্ট","16","অধ্যায় ২: পাইথনের সঙ্গে পরিচয়","<p class=\"para\">মাল্টি-লাইন নোটের জন্য ট্রিপল কোট ব্যবহার করা যায় (অনেক সময় ডকস্ট্রিং হিসেবেও ব্যবহার হয়)।</p><div class=\"codeblock\"><pre class=\"codepre\">\"\"\"<br>এটি একটি<br>মাল্টি-লাইন<br>কমেন্ট/ডকস্ট্রিং উদাহরণ<br>\"\"\"<br><br>print(\"Hello\")  # এটাও একটি কমেন্ট</pre></div>")
     ];
     case 10:return[
-      cpg('l',"এটি একটি কমেন্ট","সংক্ষেপে","17","এটি একটি কমেন্ট","<p class=\"para\">পাইথন একটি সহজ ও শক্তিশালী প্রোগ্রামিং ভাষা। এর সহজ সিনট্যাক্স, বিশাল কমিউনিটি, আর প্রচুর লাইব্রেরির জন্য এটি শিক্ষার্থীদের জন্য সেরা পছন্দ। তুমি এখন পাইথন ইনস্টল করে তোমার প্রথম প্রোগ্রাম লিখতে পারো।</p>"),
-      cpg('r',"অধ্যায় ৩","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","18","এটি একটি কমেন্ট","<p class=\"para\">ধরো, তোমার কাছে কিছু তথ্য আছে—যেমন তোমার নাম, তোমার বয়স, তোমার শহর। এই তথ্যগুলো কম্পিউটারের মেমোরিতে রাখতে চাও। কিভাবে রাখবে? ভ্যারিয়েবল ব্যবহার করে।</p>")
+      cpg('l',"অধ্যায় ২","সংক্ষেপে","17","অধ্যায় ২: পাইথনের সঙ্গে পরিচয়","<p class=\"para\">পাইথন একটি সহজ ও শক্তিশালী প্রোগ্রামিং ভাষা। এর সহজ সিনট্যাক্স, বিশাল কমিউনিটি, আর প্রচুর লাইব্রেরির জন্য এটি শিক্ষার্থীদের জন্য সেরা পছন্দ। তুমি এখন পাইথন ইনস্টল করে তোমার প্রথম প্রোগ্রাম লিখতে পারো।</p><div class=\"gbox\"><div class=\"gbox-title\">মনে রাখো</div><p># দিয়ে single-line comment, আর triple quote দিয়ে multi-line note লেখা যায়।</p></div>"),
+      cpg('r',"অধ্যায় ৩","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","18","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">ধরো, তোমার কাছে কিছু তথ্য আছে—যেমন তোমার নাম, তোমার বয়স, তোমার শহর। এই তথ্যগুলো কম্পিউটারের মেমোরিতে রাখতে চাও। কিভাবে রাখবে? ভ্যারিয়েবল ব্যবহার করে।</p>")
     ];
     case 11:return[
       cpg('l',"অধ্যায় ৩","ভ্যারিয়েবল কী?","19","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">ভ্যারিয়েবল হচ্ছে \"তথ্য রাখার বক্স\"। যেমন তুমি তোমার স্কুল ব্যাগে বই রাখো, খাতা রাখো, পেন্সিল রাখো—ঠিক তেমনি পাইথনে আমরা ভ্যারিয়েবলে বিভিন্ন তথ্য রাখি।</p><p class=\"para\">প্রোগ্রামিং-এর ভাষায়, ভ্যারিয়েবল হলো কম্পিউটারের মেমোরির একটি জায়গা, যেখানে আমরা ডেটা সংরক্ষণ করি এবং পরে সেই ডেটা ব্যবহার করি।</p>"),
@@ -1418,35 +1640,35 @@ function getSpread(idx){
     ];
     case 12:return[
       cpg('l',"অধ্যায় ৩","ভ্যারিয়েবলের নামকরণের নিয়ম","21","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">ভ্যারিয়েবলের নাম দেওয়ার সময় কিছু নিয়ম মেনে চলতে হয়:</p><ul class=\"chklist\"><li><strong>যা করা যাবে:</strong></li><li>letters (a-z, A-Z) ব্যবহার করা যাবে</li><li>digits (0-9) ব্যবহার করা যাবে, কিন্তু নামের প্রথম অক্ষর সংখ্যা হতে পারবে না</li><li>underscore (_) ব্যবহার করা যাবে</li></ul><p class=\"para\">❌ <strong>যা করা যাবে না:</strong></p><ul class=\"chklist\"><li>নামের প্রথম অক্ষর সংখ্যা হতে পারবে না (যেমন: <span class=\"icode\">1name</span> ভুল)</li><li>স্পেস ব্যবহার করা যাবে না (যেমন: <span class=\"icode\">my name</span> ভুল, সঠিক হবে <span class=\"icode\">my_name</span>)</li><li>পাইথনের সংরক্ষিত শব্দ (reserved keywords) ব্যবহার করা যাবে না</li><li>বিশেষ চিহ্ন যেমন @, #, $, % ব্যবহার করা যাবে না</li></ul><p class=\"para\"><strong>ভালো নামের উদাহরণ:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">student_name = \"Rafi\"<br>student_age = 15<br>total_marks = 450<br>is_passed = True</pre></div><p class=\"para\"><strong>খারাপ নামের উদাহরণ:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">1student = \"Rafi\"     # ভুল (সংখ্যা দিয়ে শুরু)<br>student name = \"Rafi\" # ভুল (স্পেস আছে)<br>if = 10               # ভুল (if একটি সংরক্ষিত শব্দ)<br>student@name = \"Rafi\" # ভুল (@ ব্যবহার করা যাবে না)</pre></div>"),
-      cpg('r',"অধ্যায় ৩","ভ্যারিয়েবল ব্যবহার করা","22","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">একবার ভ্যারিয়েবল ডিক্লেয়ার করলে, আমরা সেটা যেকোনো জায়গায় ব্যবহার করতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('r',"অধ্যায় ৩","ভ্যারিয়েবল ব্যবহার করা","22","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">একবার ভ্যারিয়েবল ডিক্লেয়ার করলে, আমরা সেটা যেকোনো জায়গায় ব্যবহার করতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">name = \"রাফি\"<br>age = 15<br>city = \"ঢাকা\"<br><br>print(\"নাম:\", name)<br>print(\"বয়স:\", age)<br>print(\"শহর:\", city)</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">নাম: রাফি<br>বয়স: 15<br>শহর: ঢাকা</pre></div>")
     ];
     case 13:return[
-      cpg('l',"ভ্যারিয়েবল ডিক্লেয়ার","ভ্যারিয়েবল ডিক্লেয়ার","23","ভ্যারিয়েবল ডিক্লেয়ার","<p class=\"para\">name = \"তাসিম\"</p><p class=\"para\">age = 15</p><p class=\"para\">city = \"ঢাকা\"</p><p class=\"para\">temperature = 30</p>"),
-      cpg('r',"ভ্যারিয়েবল ব্যবহার","ভ্যারিয়েবল ব্যবহার","24","ভ্যারিয়েবল ব্যবহার","<p class=\"para\">print(\"আমার নাম\", name)</p><p class=\"para\">print(\"আমার বয়স\", age, \"বছর\")</p><p class=\"para\">print(\"আমি\", city, \"তে থাকি\")</p><p class=\"para\">print(\"আজ\", city, \"শহরের তাপমাত্রা\", temperature, \"ডিগ্রি সেলসিয়াস\")</p><div class=\"codeblock\"><pre class=\"codepre\">**আউটপুট:**</pre></div><p class=\"para\">আমার নাম তাসিম</p><p class=\"para\">আমার বয়স 15 বছর</p><p class=\"para\">আমি ঢাকায় থাকি</p><p class=\"para\">আজ ঢাকা শহরের তাপমাত্রা 30 ডিগ্রি সেলসিয়াস</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"অধ্যায় ৩","ভ্যারিয়েবল ডিক্লেয়ার","23","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">ভ্যারিয়েবল ডিক্লেয়ারের একটি সহজ উদাহরণ:</p><div class=\"codeblock\"><pre class=\"codepre\">name = \"তাসিম\"<br>age = 15<br>city = \"ঢাকা\"<br>temperature = 30</pre></div>"),
+      cpg('r',"অধ্যায় ৩","ভ্যারিয়েবল ব্যবহার","24","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<div class=\"codeblock\"><pre class=\"codepre\">print(\"আমার নাম\", name)<br>print(\"আমার বয়স\", age, \"বছর\")<br>print(\"আমি\", city, \"তে থাকি\")<br>print(\"আজ\", city, \"শহরের তাপমাত্রা\", temperature, \"ডিগ্রি সেলসিয়াস\")</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">আমার নাম তাসিম<br>আমার বয়স 15 বছর<br>আমি ঢাকায় থাকি<br>আজ ঢাকা শহরের তাপমাত্রা 30 ডিগ্রি সেলসিয়াস</pre></div>")
     ];
     case 14:return[
-      cpg('l',"ভ্যারিয়েবল ব্যবহার","ভ্যারিয়েবলের মান পরিবর্তন","25","ভ্যারিয়েবল ব্যবহার","<p class=\"para\">ভ্যারিয়েবলের সবচেয়ে মজার ব্যাপার হলো এর মান পরিবর্তন করা যায়।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"প্রথমে মান সেট করি","প্রথমে মান সেট করি","26","প্রথমে মান সেট করি","<p class=\"para\">score = 10</p><p class=\"para\">print(\"স্কোর:\", score)  # আউটপুট: স্কোর: 10</p>")
+      cpg('l',"অধ্যায় ৩","ভ্যারিয়েবলের মান পরিবর্তন","25","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">ভ্যারিয়েবলের সবচেয়ে মজার ব্যাপার হলো এর মান পরিবর্তন করা যায়।</p><div class=\"codeblock\"><pre class=\"codepre\">score = 10<br>print(\"শুরুতে স্কোর:\", score)<br><br>score = 20<br>print(\"নতুন স্কোর:\", score)</pre></div>"),
+      cpg('r',"অধ্যায় ৩","প্রথমে মান সেট করি","26","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<div class=\"codeblock\"><pre class=\"codepre\">score = 10<br>print(\"স্কোর:\", score)  # আউটপুট: স্কোর: 10</pre></div><p class=\"para\">এরপর এই ভ্যারিয়েবলের মান আমরা পরিবর্তন করতে পারব।</p>")
     ];
     case 15:return[
       cpg('l',"মান পরিবর্তন করি","মান পরিবর্তন করি","27","মান পরিবর্তন করি","<p class=\"para\">score = 20</p><p class=\"para\">print(\"নতুন স্কোর:\", score)  # আউটপুট: নতুন স্কোর: 20</p>"),
       cpg('r',"পুরনো মান ব্যবহার করে নতুন মান সেট করি","পুরনো মান ব্যবহার করে নতুন মান সেট করি","28","পুরনো মান ব্যবহার করে নতুন মান সেট করি","<p class=\"para\">score = score + 5</p><p class=\"para\">print(\"আপডেটেড স্কোর:\", score)  # আউটপুট: আপডেটেড স্কোর: 25</p>")
     ];
     case 16:return[
-      cpg('l',"সংক্ষিপ্ত পদ্ধতি","সংক্ষিপ্ত পদ্ধতি","29","সংক্ষিপ্ত পদ্ধতি","<p class=\"para\">score += 5  # score = score + 5 এর সংক্ষিপ্ত রূপ</p><p class=\"para\">print(\"আরও আপডেট:\", score)  # আউটপুট: আরও আপডেট: 30</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"সংক্ষিপ্ত পদ্ধতি","একাধিক ভ্যারিয়েবল এক লাইনে","30","সংক্ষিপ্ত পদ্ধতি","<p class=\"para\">পাইথনে এক লাইনে একাধিক ভ্যারিয়েবল ডিক্লেয়ার করা যায়।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"অধ্যায় ৩","সংক্ষিপ্ত পদ্ধতি","29","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">একই ভ্যারিয়েবলের মান বাড়ানো/কমানোর জন্য শর্টহ্যান্ড ব্যবহার করা যায়।</p><div class=\"codeblock\"><pre class=\"codepre\">score += 5  # score = score + 5 এর সংক্ষিপ্ত রূপ<br>print(\"আরও আপডেট:\", score)  # আউটপুট: আরও আপডেট: 30</pre></div>"),
+      cpg('r',"অধ্যায় ৩","একাধিক ভ্যারিয়েবল এক লাইনে","30","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">পাইথনে এক লাইনে একাধিক ভ্যারিয়েবল ডিক্লেয়ার করা যায়।</p><div class=\"codeblock\"><pre class=\"codepre\">x, y, z = 5, 10, 15<br>print(x, y, z)  # আউটপুট: 5 10 15</pre></div>")
     ];
     case 17:return[
-      cpg('l',"এক লাইনে একাধিক ভ্যারিয়েবল","এক লাইনে একাধিক ভ্যারিয়েবল","31","এক লাইনে একাধিক ভ্যারিয়েবল","<p class=\"para\">x, y, z = 5, 10, 15</p><p class=\"para\">print(x, y, z)  # আউটপুট: 5 10 15</p>"),
-      cpg('r',"সব ভ্যারিয়েবলে একই মান দেওয়া","সব ভ্যারিয়েবলে একই মান দেওয়া","32","সব ভ্যারিয়েবলে একই মান দেওয়া","<p class=\"para\">a = b = c = 100</p><p class=\"para\">print(a, b, c)  # আউটপুট: 100 100 100</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"অধ্যায় ৩","এক লাইনে একাধিক ভ্যারিয়েবল","31","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<div class=\"codeblock\"><pre class=\"codepre\">x, y, z = 5, 10, 15<br>print(x, y, z)  # আউটপুট: 5 10 15</pre></div>"),
+      cpg('r',"অধ্যায় ৩","সব ভ্যারিয়েবলে একই মান দেওয়া","32","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<div class=\"codeblock\"><pre class=\"codepre\">a = b = c = 100<br>print(a, b, c)  # আউটপুট: 100 100 100</pre></div><p class=\"para\">এই পদ্ধতিতে একই মান দ্রুত একাধিক ভ্যারিয়েবলে সেট করা যায়।</p>")
     ];
     case 18:return[
-      cpg('l',"সব ভ্যারিয়েবলে একই মান দেওয়া","ভ্যারিয়েবলের মান অদল-বদল (Swap)","33","সব ভ্যারিয়েবলে একই মান দেওয়া","<p class=\"para\">দুইটি ভ্যারিয়েবলের মান অদল-বদল করা খুব সহজ পাইথনে:</p><div class=\"codeblock\"><pre class=\"codepre\">a = 5<br>b = 10<br>print(\"আগে:\", a, b)  # আগে: 5 10</pre></div>"),
-      cpg('r',"অদল-বদল","অদল-বদল","34","অদল-বদল","<p class=\"para\">a, b = b, a</p><p class=\"para\">print(\"পরে:\", a, b)   # পরে: 10 5</p><div class=\"codeblock\"><pre class=\"codepre\">অন্য প্রোগ্রামিং ভাষায় এর জন্য একটি অতিরিক্ত ভ্যারিয়েবল লাগে। পাইথনে এত সহজ!</pre></div>")
+      cpg('l',"অধ্যায় ৩","ভ্যারিয়েবলের মান অদল-বদল (Swap)","33","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">দুইটি ভ্যারিয়েবলের মান অদল-বদল করা খুব সহজ পাইথনে:</p><div class=\"codeblock\"><pre class=\"codepre\">a = 5<br>b = 10<br>print(\"আগে:\", a, b)  # আগে: 5 10</pre></div>"),
+      cpg('r',"অধ্যায় ৩","অদল-বদল","34","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<div class=\"codeblock\"><pre class=\"codepre\">a, b = b, a<br>print(\"পরে:\", a, b)   # পরে: 10 5</pre></div><p class=\"para\">অন্য প্রোগ্রামিং ভাষায় এর জন্য একটি অতিরিক্ত ভ্যারিয়েবল লাগে। পাইথনে এত সহজ!</p>")
     ];
     case 19:return[
-      cpg('l',"অদল-বদল","ভ্যারিয়েবলের টাইপ চেক করা","35","অদল-বদল","<p class=\"para\">পাইথনে প্রতিটি ভ্যারিয়েবলের একটি টাইপ আছে। <span class=\"icode\">type()</span> ফাংশন দিয়ে আমরা সেই টাইপ জানতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">name = \"Tasim\"<br>age = 25<br>height = 5.8<br>is_student = True<br>print(type(name))       # &lt;class 'str'&gt;<br>print(type(age))        # &lt;class 'int'&gt;<br>print(type(height))     # &lt;class 'float'&gt;<br>print(type(is_student)) # &lt;class 'bool'&gt;</pre></div>"),
-      cpg('r',"অদল-বদল","ডায়নামিক টাইপিং","36","অদল-বদল","<p class=\"para\">পাইথন একটি ডায়নামিক টাইপিং ভাষা। অর্থাৎ, একই ভ্যারিয়েবলে আমরা বিভিন্ন সময় বিভিন্ন টাইপের ডেটা রাখতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10        # এখন x ইন্টিজার<br>print(x, type(x))<br>x = \"Hello\"   # এখন x স্ট্রিং<br>print(x, type(x))<br>x = True      # এখন x বুলিয়ান<br>print(x, type(x))</pre></div><p class=\"para\">এটা অনেক প্রোগ্রামিং ভাষায় সম্ভব না (যেমন জাভা, সি++), কিন্তু পাইথনে সম্ভব। তবে ভালো প্র্যাকটিস হলো একই ভ্যারিয়েবলে সব সময় একই টাইপের ডেটা রাখা।</p>")
+      cpg('l',"অধ্যায় ৩","ভ্যারিয়েবলের টাইপ চেক করা","35","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">পাইথনে প্রতিটি ভ্যারিয়েবলের একটি টাইপ আছে। <span class=\"icode\">type()</span> ফাংশন দিয়ে আমরা সেই টাইপ জানতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">name = \"Tasim\"<br>age = 25<br>height = 5.8<br>is_student = True<br><br>print(type(name))       # &lt;class 'str'&gt;<br>print(type(age))        # &lt;class 'int'&gt;<br>print(type(height))     # &lt;class 'float'&gt;<br>print(type(is_student)) # &lt;class 'bool'&gt;</pre></div>"),
+      cpg('r',"অধ্যায় ৩","ডায়নামিক টাইপিং","36","অধ্যায় ৩: ভ্যারিয়েবল – তথ্য রাখার বক্স","<p class=\"para\">পাইথন একটি ডায়নামিক টাইপিং ভাষা। অর্থাৎ, একই ভ্যারিয়েবলে আমরা বিভিন্ন সময় বিভিন্ন টাইপের ডেটা রাখতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10         # এখন x ইন্টিজার<br>print(x, type(x))<br><br>x = \"Hello\"    # এখন x স্ট্রিং<br>print(x, type(x))<br><br>x = True       # এখন x বুলিয়ান<br>print(x, type(x))</pre></div><p class=\"para\">এটা অনেক প্রোগ্রামিং ভাষায় সম্ভব না (যেমন জাভা, সি++), কিন্তু পাইথনে সম্ভব। তবে ভালো প্র্যাকটিস হলো একই ভ্যারিয়েবলে সব সময় একই টাইপের ডেটা রাখা।</p>")
     ];
     case 20:return[
       cpg('l',"অদল-বদল","প্র্যাকটিস প্রবলেম","37","অদল-বদল","<ol class=\"numlist\"><li>তোমার নাম, বয়স, শহর, প্রিয় রং—এই চারটি তথ্য ভ্যারিয়েবলে রেখে একটি বাক্যে প্রিন্ট করো।</li><li>দুটি সংখ্যা নাও। তাদের যোগফল, বিয়োগফল, গুণফল, ভাগফল ভ্যারিয়েবলে রেখে প্রিন্ট করো।</li><li>তোমার বর্তমান বয়স একটি ভ্যারিয়েবলে রাখো। তারপর ৫ বছর পর তোমার বয়স বের করে প্রিন্ট করো।</li></ol>"),
@@ -1457,88 +1679,88 @@ function getSpread(idx){
       cpg('r',"অধ্যায় ৪","ইনপুট নেওয়া: input() ফাংশন","40","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\">পাইথনে ইনপুট নেওয়ার জন্য <span class=\"icode\">input()</span> ফাংশন ব্যবহার করা হয়।</p><div class=\"codeblock\"><pre class=\"codepre\">name = input(\"তোমার নাম কী? \")<br>print(\"স্বাগতম,\", name, \"!\")</pre></div><p class=\"para\">এই প্রোগ্রাম রান করলে কি হবে?</p><p class=\"para\">প্রথমে স্ক্রিনে দেখাবে: <span class=\"icode\">তোমার নাম কী?</span></p><p class=\"para\">তুমি তোমার নাম লিখবে, যেমন: <span class=\"icode\">Rafi</span></p><p class=\"para\">তারপর দেখাবে: <span class=\"icode\">স্বাগতম, Rafi !</span></p>")
     ];
     case 22:return[
-      cpg('l',"অধ্যায় ৪","input() সব সময় স্ট্রিং রিটার্ন করে","41","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\"><span class=\"icode\">input()</span> ফাংশন সব সময় স্ট্রিং (টেক্সট) আকারে ইনপুট নেয়। তুমি যদি সংখ্যা ইনপুট নিতে চাও, তাহলে সেটাকে সংখ্যায় রূপান্তর করতে হবে।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"নাম ইনপুট (স্ট্রিং)","নাম ইনপুট (স্ট্রিং)","42","নাম ইনপুট (স্ট্রিং)","<p class=\"para\">name = input(\"তোমার নাম কী? \")</p>")
+      cpg('l',"অধ্যায় ৪","input() সব সময় স্ট্রিং রিটার্ন করে","41","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\"><span class=\"icode\">input()</span> ফাংশন সব সময় স্ট্রিং (টেক্সট) আকারে ইনপুট নেয়। তুমি যদি সংখ্যা ইনপুট নিতে চাও, তাহলে সেটাকে সংখ্যায় রূপান্তর করতে হবে।</p><div class=\"codeblock\"><pre class=\"codepre\">age_text = input(\"তোমার বয়স কত? \")<br>print(type(age_text))  # &lt;class 'str'&gt;<br><br>age = int(age_text)<br>print(type(age))       # &lt;class 'int'&gt;</pre></div>"),
+      cpg('r',"অধ্যায় ৪","নাম ইনপুট (স্ট্রিং)","42","অধ্যায় ৪: ইনপুট ও আউটপুট","<div class=\"codeblock\"><pre class=\"codepre\">name = input(\"তোমার নাম কী? \")<br>print(\"স্বাগতম,\", name)</pre></div>")
     ];
     case 23:return[
       cpg('l',"বয়স ইনপুট - ইন্টিজারে রূপান্তর","বয়স ইনপুট - ইন্টিজারে রূপান্তর","43","বয়স ইনপুট - ইন্টিজারে রূপান্তর","<p class=\"para\">age = int(input(\"তোমার বয়স কত? \"))</p>"),
       cpg('r',"উচ্চতা ইনপুট - ফ্লোটে রূপান্তর","উচ্চতা ইনপুট - ফ্লোটে রূপান্তর","44","উচ্চতা ইনপুট - ফ্লোটে রূপান্তর","<p class=\"para\">height = float(input(\"তোমার উচ্চতা কত মিটার? \"))</p><p class=\"para\">print(\"তোমার নাম:\", name)</p><p class=\"para\">print(\"তোমার বয়স:\", age, \"বছর\")</p><p class=\"para\">print(\"তোমার উচ্চতা:\", height, \"মিটার\")</p><p class=\"para\">print(\"৫ বছর পর তোমার বয়স হবে:\", age + 5)</p><div class=\"codeblock\"><pre class=\"codepre\">`int()` ফাংশন স্ট্রিংকে ইন্টিজারে, আর `float()` ফাংশন স্ট্রিংকে ফ্লোটে রূপান্তর করে।</pre></div>")
     ];
     case 24:return[
-      cpg('l',"উচ্চতা ইনপুট - ফ্লোটে রূপান্তর","একাধিক ইনপুট এক লাইনে","45","উচ্চতা ইনপুট - ফ্লোটে রূপান্তর","<p class=\"para\">কখনো কখনো আমরা এক লাইনে একাধিক ইনপুল নিতে চাই। সেক্ষেত্রে <span class=\"icode\">split()</span> ব্যবহার করি।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"স্পেস দিয়ে আলাদা করা ইনপুট","স্পেস দিয়ে আলাদা করা ইনপুট","46","স্পেস দিয়ে আলাদা করা ইনপুট","<p class=\"para\">data = input(\"তোমার নাম ও বয়স লিখো (স্পেস দিয়ে): \")</p><p class=\"para\">name, age = data.split()</p><p class=\"para\">age = int(age)</p><p class=\"para\">print(f\"নাম: {name}, বয়স: {age}\")</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"অধ্যায় ৪","একাধিক ইনপুট এক লাইনে","45","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\">কখনো কখনো আমরা এক লাইনে একাধিক ইনপুট নিতে চাই। সেক্ষেত্রে <span class=\"icode\">split()</span> ব্যবহার করি।</p><div class=\"codeblock\"><pre class=\"codepre\">data = input(\"তোমার নাম ও বয়স লিখো (স্পেস দিয়ে): \")<br>name, age = data.split()<br>age = int(age)<br><br>print(f\"নাম: {name}, বয়স: {age}\")</pre></div>"),
+      cpg('r',"অধ্যায় ৪","স্পেস দিয়ে আলাদা করা ইনপুট","46","অধ্যায় ৪: ইনপুট ও আউটপুট","<div class=\"codeblock\"><pre class=\"codepre\">data = input(\"তোমার নাম ও বয়স লিখো (স্পেস দিয়ে): \")<br>name, age = data.split()<br>age = int(age)<br>print(f\"নাম: {name}, বয়স: {age}\")</pre></div><p class=\"para\"><strong>উদাহরণ ইনপুট:</strong> <span class=\"icode\">Rafi 15</span></p><p class=\"para\"><strong>আউটপুট:</strong> <span class=\"icode\">নাম: Rafi, বয়স: 15</span></p>")
     ];
     case 25:return[
-      cpg('l',"স্পেস দিয়ে আলাদা করা ইনপুট","আউটপুট ফরম্যাটিং","47","স্পেস দিয়ে আলাদা করা ইনপুট","<p class=\"para\">আমরা চাইলে আউটপুটকে সুন্দরভাবে সাজাতে পারি। পাইথনে আউটপুট ফরম্যাট করার কয়েকটি উপায় আছে:</p><p class=\"para\"><strong>পদ্ধতি ১: কমা ব্যবহার করে</strong></p><div class=\"codeblock\"><pre class=\"codepre\">name = \"রাফি\"<br>age = 15<br>print(\"আমার নাম\", name, \"এবং আমার বয়স\", age, \"বছর\")</pre></div><p class=\"para\"><strong>পদ্ধতি ২: প্লাস চিহ্ন ব্যবহার করে</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(\"আমার নাম \" + name + \" এবং আমার বয়স \" + str(age) + \" বছর\")</pre></div><p class=\"para\"><strong>পদ্ধতি ৩: f-string (সবচেয়ে সহজ ও আধুনিক)</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(f\"আমার নাম {name} এবং আমার বয়স {age} বছর\")</pre></div><p class=\"para\">তিনটি পদ্ধতিতেই একই আউটপুট আসবে:</p><div class=\"codeblock\"><pre class=\"codepre\">আমার নাম রাফি এবং আমার বয়স 15 বছর</pre></div>"),
-      cpg('r',"স্পেস দিয়ে আলাদা করা ইনপুট","f-string-এর আরও কিছু ব্যবহার","48","স্পেস দিয়ে আলাদা করা ইনপুট","<p class=\"para\">f-string-এ আমরা ভ্যারিয়েবলের মান সরাসরি বসাতে পারি, আবার এক্সপ্রেশনও বসাতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">name = \"রাফি\"<br>age = 15</pre></div>")
+      cpg('l',"অধ্যায় ৪","আউটপুট ফরম্যাটিং","47","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\">আমরা চাইলে আউটপুটকে সুন্দরভাবে সাজাতে পারি। পাইথনে আউটপুট ফরম্যাট করার কয়েকটি উপায় আছে:</p><p class=\"para\"><strong>পদ্ধতি ১: কমা ব্যবহার করে</strong></p><div class=\"codeblock\"><pre class=\"codepre\">name = \"রাফি\"<br>age = 15<br>print(\"আমার নাম\", name, \"এবং আমার বয়স\", age, \"বছর\")</pre></div><p class=\"para\"><strong>পদ্ধতি ২: প্লাস চিহ্ন ব্যবহার করে</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(\"আমার নাম \" + name + \" এবং আমার বয়স \" + str(age) + \" বছর\")</pre></div><p class=\"para\"><strong>পদ্ধতি ৩: f-string (সবচেয়ে সহজ ও আধুনিক)</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(f\"আমার নাম {name} এবং আমার বয়স {age} বছর\")</pre></div><p class=\"para\">তিনটি পদ্ধতিতেই একই আউটপুট আসবে:</p><div class=\"codeblock\"><pre class=\"codepre\">আমার নাম রাফি এবং আমার বয়স 15 বছর</pre></div>"),
+      cpg('r',"অধ্যায় ৪","f-string-এর আরও কিছু ব্যবহার","48","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\">f-string-এ আমরা ভ্যারিয়েবলের মান সরাসরি বসাতে পারি, আবার এক্সপ্রেশনও বসাতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">name = \"রাফি\"<br>age = 15<br><br>print(f\"আমি {name}\")<br>print(f\"৫ বছর পর আমার বয়স হবে {age + 5}\")</pre></div>")
     ];
     case 26:return[
       cpg('l',"ভ্যারিয়েবল বসানো","ভ্যারিয়েবল বসানো","49","ভ্যারিয়েবল বসানো","<p class=\"para\">print(f\"আমি {name}\")</p>"),
       cpg('r',"এক্সপ্রেশন বসানো","এক্সপ্রেশন বসানো","50","এক্সপ্রেশন বসানো","<p class=\"para\">print(f\"৫ বছর পর আমার বয়স হবে {age + 5}\")</p>")
     ];
     case 27:return[
-      cpg('l',"ডেসিম্যাল ফরম্যাটিং","ডেসিম্যাল ফরম্যাটিং","51","ডেসিম্যাল ফরম্যাটিং","<p class=\"para\">pi = 3.14159265</p><p class=\"para\">print(f\"পাই এর মান: {pi:.2f}\")  # ২ দশমিক পর্যন্ত</p>"),
-      cpg('r',"সংখ্যা ফরম্যাটিং","সংখ্যা ফরম্যাটিং","52","সংখ্যা ফরম্যাটিং","<p class=\"para\">number = 1234567</p><p class=\"para\">print(f\"বড় সংখ্যা: {number:,}\")  # কমা দিয়ে</p><div class=\"codeblock\"><pre class=\"codepre\">**আউটপুট:**</pre></div><p class=\"para\">আমি রাফি</p><p class=\"para\">৫ বছর পর আমার বয়স হবে 20</p><p class=\"para\">পাই এর মান: 3.14</p><p class=\"para\">বড় সংখ্যা: 1,234,567</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"অধ্যায় ৪","ডেসিম্যাল ফরম্যাটিং","51","অধ্যায় ৪: ইনপুট ও আউটপুট","<div class=\"codeblock\"><pre class=\"codepre\">pi = 3.14159265<br>print(f\"পাই এর মান: {pi:.2f}\")  # ২ দশমিক পর্যন্ত</pre></div>"),
+      cpg('r',"অধ্যায় ৪","সংখ্যা ফরম্যাটিং","52","অধ্যায় ৪: ইনপুট ও আউটপুট","<div class=\"codeblock\"><pre class=\"codepre\">number = 1234567<br>print(f\"বড় সংখ্যা: {number:,}\")  # কমা দিয়ে</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">পাই এর মান: 3.14<br>বড় সংখ্যা: 1,234,567</pre></div>")
     ];
     case 28:return[
-      cpg('l',"সংখ্যা ফরম্যাটিং","প্রিন্টের বিশেষ বৈশিষ্ট্য","53","সংখ্যা ফরম্যাটিং","<p class=\"para\"><span class=\"icode\">print()</span> ফাংশনের আরও কিছু বৈশিষ্ট্য আছে:</p><p class=\"para\"><strong>sep প্যারামিটার:</strong> একাধিক আর্গুমেন্টের মাঝে কী বসবে</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"হ্যালো\", \"বাংলাদেশ\", sep=\"-\")  # আউটপুট: হ্যালো-বাংলাদেশ</pre></div><p class=\"para\"><strong>end প্যারামিটার:</strong> প্রিন্ট শেষে কী বসবে (ডিফল্ট হলো নতুন লাইন \n)</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"হ্যালো\", end=\" \")<br>print(\"বাংলাদেশ\")  # আউটপুট: হ্যালো বাংলাদেশ (একই লাইনে)</pre></div>"),
-      cpg('r',"সংখ্যা ফরম্যাটিং","একটি পূর্ণাঙ্গ উদাহরণ","54","সংখ্যা ফরম্যাটিং","<p class=\"para\">চলো, একটি ছোট প্রোগ্রাম লিখি যা ব্যবহারকারীর কাছ থেকে নাম, বয়স, শহর ইনপুট নিয়ে একটি পরিচিতি তৈরি করবে।</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"🎯 স্বাগতম প্রোফাইল ক্রিয়েটরে!\")<br>print(\"=\" * 40)</pre></div>")
+      cpg('l',"অধ্যায় ৪","প্রিন্টের বিশেষ বৈশিষ্ট্য","53","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\"><span class=\"icode\">print()</span> ফাংশনের আরও কিছু বৈশিষ্ট্য আছে:</p><p class=\"para\"><strong>sep প্যারামিটার:</strong> একাধিক আর্গুমেন্টের মাঝে কী বসবে</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"হ্যালো\", \"বাংলাদেশ\", sep=\"-\")  # আউটপুট: হ্যালো-বাংলাদেশ</pre></div><p class=\"para\"><strong>end প্যারামিটার:</strong> প্রিন্ট শেষে কী বসবে (ডিফল্ট হলো নতুন লাইন \\n)</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"হ্যালো\", end=\" \")<br>print(\"বাংলাদেশ\")  # আউটপুট: হ্যালো বাংলাদেশ (একই লাইনে)</pre></div>"),
+      cpg('r',"অধ্যায় ৪","একটি পূর্ণাঙ্গ উদাহরণ","54","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\">চলো, একটি ছোট প্রোগ্রাম লিখি যা ব্যবহারকারীর কাছ থেকে নাম, বয়স, শহর ইনপুট নিয়ে একটি পরিচিতি তৈরি করবে।</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"🎯 স্বাগতম প্রোফাইল ক্রিয়েটরে!\")<br>print(\"=\" * 40)</pre></div>")
     ];
     case 29:return[
       cpg('l',"ইনপুট নেওয়া","ইনপুট নেওয়া","55","ইনপুট নেওয়া","<p class=\"para\">name = input(\"তোমার নাম কী? \")</p><p class=\"para\">age = int(input(\"তোমার বয়স কত? \"))</p><p class=\"para\">city = input(\"তুমি কোন শহরে থাকো? \")</p><p class=\"para\">hobby = input(\"তোমার শখ কী? \")</p><p class=\"para\">print(\"\n\" + \"=\" * 40)</p><p class=\"para\">print(\"📋 তোমার প্রোফাইল 📋\")</p><p class=\"para\">print(\"=\" * 40)</p>"),
       cpg('r',"f-string দিয়ে আউটপুট","f-string দিয়ে আউটপুট","56","f-string দিয়ে আউটপুট","<p class=\"para\">print(f\"নাম: {name}\")</p><p class=\"para\">print(f\"বয়স: {age} বছর\")</p><p class=\"para\">print(f\"শহর: {city}\")</p><p class=\"para\">print(f\"শখ: {hobby}\")</p>")
     ];
     case 30:return[
-      cpg('l',"কিছু হিসাব","কিছু হিসাব","57","কিছু হিসাব","<p class=\"para\">print(f\"তুমি {65 - age} বছর পর অবসর গ্রহণ করবে!\")</p><p class=\"para\">print(f\"তোমার নামে {len(name)}টি অক্ষর আছে।\")</p><p class=\"para\">print(\"=\" * 40)</p><div class=\"codeblock\"><pre class=\"codepre\">**আউটপুট উদাহরণ:**</pre></div><p class=\"para\">🎯 স্বাগতম প্রোফাইল ক্রিয়েটরে!</p><p class=\"para\">========================================</p><p class=\"para\">তোমার নাম কী? রাফি</p><p class=\"para\">তোমার বয়স কত? 15</p><p class=\"para\">তুমি কোন শহরে থাকো? ঢাকা</p><p class=\"para\">তোমার শখ কী? প্রোগ্রামিং</p><p class=\"para\">========================================</p><p class=\"para\">📋 তোমার প্রোফাইল 📋</p><p class=\"para\">========================================</p><p class=\"para\">নাম: রাফি</p><p class=\"para\">বয়স: 15 বছর</p><p class=\"para\">শহর: ঢাকা</p><p class=\"para\">শখ: প্রোগ্রামিং</p><p class=\"para\">তুমি 50 বছর পর অবসর গ্রহণ করবে!</p><p class=\"para\">তোমার নামে 4টি অক্ষর আছে।</p><p class=\"para\">========================================</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"কিছু হিসাব","প্র্যাকটিস প্রবলেম","58","কিছু হিসাব","<ol class=\"numlist\"><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে দৈর্ঘ্য ও প্রস্থ ইনপুট নিয়ে আয়তক্ষেত্রের ক্ষেত্রফল বের করবে।</li><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে সেলসিয়াস তাপমাত্রা ইনপুট নিয়ে ফারেনহাইটে রূপান্তর করবে। (সূত্র: F = C × 9/5 + 32)</li><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে ৫টি সংখ্যা ইনপুট নিয়ে তাদের গড় বের করবে।</li></ol>")
+      cpg('l',"অধ্যায় ৪","কিছু হিসাব","57","অধ্যায় ৪: ইনপুট ও আউটপুট","<div class=\"codeblock\"><pre class=\"codepre\">print(f\"তুমি {65 - age} বছর পর অবসর গ্রহণ করবে!\")<br>print(f\"তোমার নামে {len(name)}টি অক্ষর আছে।\")<br>print(\"=\" * 40)</pre></div><p class=\"para\"><strong>আউটপুট উদাহরণ:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">তুমি 50 বছর পর অবসর গ্রহণ করবে!<br>তোমার নামে 4টি অক্ষর আছে।<br>========================================</pre></div>"),
+      cpg('r',"অধ্যায় ৪","প্র্যাকটিস প্রবলেম","58","অধ্যায় ৪: ইনপুট ও আউটপুট","<ol class=\"numlist\"><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে দৈর্ঘ্য ও প্রস্থ ইনপুট নিয়ে আয়তক্ষেত্রের ক্ষেত্রফল বের করবে।</li><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে সেলসিয়াস তাপমাত্রা ইনপুট নিয়ে ফারেনহাইটে রূপান্তর করবে। (সূত্র: F = C × 9/5 + 32)</li><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে ৫টি সংখ্যা ইনপুট নিয়ে তাদের গড় বের করবে।</li></ol>")
     ];
     case 31:return[
-      cpg('l',"কিছু হিসাব","সংক্ষেপে","59","কিছু হিসাব","<p class=\"para\">ইনপুট ও আউটপুট প্রোগ্রামের মৌলিক অংশ। <span class=\"icode\">input()</span> দিয়ে আমরা ব্যবহারকারীর কাছ থেকে ডেটা নেই, <span class=\"icode\">print()</span> দিয়ে আউটপুট দেখাই। <span class=\"icode\">int()</span> ও <span class=\"icode\">float()</span> দিয়ে স্ট্রিংকে সংখ্যায় রূপান্তর করি। f-string দিয়ে সুন্দর আউটপুট তৈরি করি।</p>"),
-      cpg('r',"অধ্যায় ৫","অধ্যায় ৫: ডেটা টাইপ","60","কিছু হিসাব","<p class=\"para\">পাইথনে বিভিন্ন ধরণের ডেটা আছে। প্রতিটি ডেটার নিজস্ব টাইপ আছে। ডেটা টাইপ বুঝলে প্রোগ্রামিং অনেক সহজ হয়।</p>")
+      cpg('l',"অধ্যায় ৪","সংক্ষেপে","59","অধ্যায় ৪: ইনপুট ও আউটপুট","<p class=\"para\">ইনপুট ও আউটপুট প্রোগ্রামের মৌলিক অংশ। <span class=\"icode\">input()</span> দিয়ে আমরা ব্যবহারকারীর কাছ থেকে ডেটা নেই, <span class=\"icode\">print()</span> দিয়ে আউটপুট দেখাই। <span class=\"icode\">int()</span> ও <span class=\"icode\">float()</span> দিয়ে স্ট্রিংকে সংখ্যায় রূপান্তর করি। f-string দিয়ে সুন্দর আউটপুট তৈরি করি।</p>"),
+      cpg('r',"অধ্যায় ৫","অধ্যায় ৫: ডেটা টাইপ","60","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\">পাইথনে বিভিন্ন ধরণের ডেটা আছে। প্রতিটি ডেটার নিজস্ব টাইপ আছে। ডেটা টাইপ বুঝলে প্রোগ্রামিং অনেক সহজ হয়।</p>")
     ];
     case 32:return[
-      cpg('l',"অধ্যায় ৫","পাইথনের প্রধান ডেটা টাইপসমূহ","61","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\">| টাইপ | নাম | উদাহরণ | ব্যাখ্যা |</p><p class=\"para\">|------|-----|---------|----------|</p><p class=\"para\">| int | Integer (পূর্ণসংখ্যা) | 5, -10, 1000 | পূর্ণ সংখ্যা, দশমিক নেই |</p><p class=\"para\">| float | Float (দশমিক সংখ্যা) | 3.14, -2.5, 0.0 | দশমিক সহ সংখ্যা |</p><p class=\"para\">| str | String (স্ট্রিং) | \"হ্যালো\", 'পাইথন' | টেক্সট বা লেখা |</p><p class=\"para\">| bool | Boolean (বুলিয়ান) | True, False | সত্য/মিথ্যা মান |</p><p class=\"para\">| list | List (লিস্ট) | [1, 2, 3] | একাধিক মানের তালিকা |</p><p class=\"para\">| tuple | Tuple (টাপল) | (1, 2, 3) | অপরিবর্তনীয় তালিকা |</p><p class=\"para\">| dict | Dictionary (ডিকশনারি) | {\"নাম\": \"রাফি\"} | কী-ভ্যালু পেয়ার |</p><p class=\"para\">| set | Set (সেট) | {1, 2, 3} | অনন্য মানের সেট |</p>"),
+      cpg('l',"অধ্যায় ৫","পাইথনের প্রধান ডেটা টাইপসমূহ","61","অধ্যায় ৫: ডেটা টাইপ","<table class=\"dtype-table\"><thead><tr><th>টাইপ</th><th>নাম</th><th>উদাহরণ</th><th>ব্যাখ্যা</th></tr></thead><tbody><tr><td><code>int</code></td><td>Integer (পূর্ণসংখ্যা)</td><td><code>5, -10, 1000</code></td><td>পূর্ণ সংখ্যা, দশমিক নেই</td></tr><tr><td><code>float</code></td><td>Float (দশমিক সংখ্যা)</td><td><code>3.14, -2.5, 0.0</code></td><td>দশমিক সহ সংখ্যা</td></tr><tr><td><code>str</code></td><td>String (স্ট্রিং)</td><td><code>\"হ্যালো\", 'পাইথন'</code></td><td>টেক্সট বা লেখা</td></tr><tr><td><code>bool</code></td><td>Boolean (বুলিয়ান)</td><td><code>True, False</code></td><td>সত্য/মিথ্যা মান</td></tr><tr><td><code>list</code></td><td>List (লিস্ট)</td><td><code>[1, 2, 3]</code></td><td>একাধিক মানের তালিকা</td></tr><tr><td><code>tuple</code></td><td>Tuple (টাপল)</td><td><code>(1, 2, 3)</code></td><td>অপরিবর্তনীয় তালিকা</td></tr><tr><td><code>dict</code></td><td>Dictionary (ডিকশনারি)</td><td><code>{\"নাম\": \"রাফি\"}</code></td><td>কী-ভ্যালু পেয়ার</td></tr><tr><td><code>set</code></td><td>Set (সেট)</td><td><code>{1, 2, 3}</code></td><td>অনন্য মানের সেট</td></tr></tbody></table>"),
       cpg('r',"অধ্যায় ৫","১. সংখ্যা (Numbers)","62","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\"><strong>পূর্ণসংখ্যা (Integer/int):</strong></p><div class=\"codeblock\"><pre class=\"codepre\">age = 25<br>year = 2025<br>students = 120<br>temperature = -5<br>print(type(age))  # &lt;class 'int'&gt;</pre></div><p class=\"para\"><strong>দশমিক সংখ্যা (Float):</strong></p><div class=\"codeblock\"><pre class=\"codepre\">price = 45.75<br>temperature = 36.6<br>pi = 3.14159265<br>weight = 65.5<br>print(type(pi))  # &lt;class 'float'&gt;</pre></div><p class=\"para\"><strong>বিজ্ঞানসম্মত নোটেশন:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">big_number = 1.2e6  # 1.2 × 10^6 = 1200000<br>small_number = 3.4e-3  # 3.4 × 10^-3 = 0.0034</pre></div>")
     ];
     case 33:return[
-      cpg('l',"অধ্যায় ৫","২. স্ট্রিং (String/str)","63","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\">স্ট্রিং হলো টেক্সট বা লেখা। স্ট্রিং সব সময় কোটেশনের ভিতরে লিখতে হয়।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"ডাবল কোট","ডাবল কোট","64","ডাবল কোট","<p class=\"para\">name = \"Rafi\"</p>")
+      cpg('l',"অধ্যায় ৫","২. স্ট্রিং (String/str)","63","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\">স্ট্রিং হলো টেক্সট বা লেখা। স্ট্রিং সব সময় কোটেশনের ভিতরে লিখতে হয়।</p><div class=\"codeblock\"><pre class=\"codepre\">name = \"Rafi\"<br>city = 'Dhaka'<br>message = \"আমি পাইথন শিখছি\"<br><br>print(name)<br>print(city)<br>print(message)</pre></div>"),
+      cpg('r',"অধ্যায় ৫","ডাবল কোট","64","অধ্যায় ৫: ডেটা টাইপ","<div class=\"codeblock\"><pre class=\"codepre\">name = \"Rafi\"<br>print(name)</pre></div>")
     ];
     case 34:return[
-      cpg('l',"সিঙ্গেল কোট","সিঙ্গেল কোট","65","সিঙ্গেল কোট","<p class=\"para\">city = 'Dhaka'</p>"),
-      cpg('r',"ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","66","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","<p class=\"para\">message = \"\"\"এটি একটি</p><p class=\"para\">মাল্টি-লাইন</p><p class=\"para\">স্ট্রিং\"\"\"</p><div class=\"codeblock\"><pre class=\"codepre\">**স্ট্রিং কনক্যাটেনেশন (যোগ করা):**</pre></div><p class=\"para\">first = \"Rafi\"</p><p class=\"para\">last = \"Ahmed\"</p><p class=\"para\">full = first + \" \" + last</p><p class=\"para\">print(full)  # Rafi Ahmed</p><div class=\"codeblock\"><pre class=\"codepre\">**স্ট্রিং রিপিটেশন:**</pre></div><p class=\"para\">line = \"-\" * 20</p><p class=\"para\">print(line)  # --------------------</p><p class=\"para\">print(\"হা\" * 3)  # হাহাহা</p><div class=\"codeblock\"><pre class=\"codepre\">**স্ট্রিং-এর দৈর্ঘ্য:**</pre></div><p class=\"para\">name = \"Rafi\"</p><p class=\"para\">print(len(name))  # 4</p><p class=\"para\">text = \"বাংলাদেশ\"</p><p class=\"para\">print(len(text))  # 7 (বাংলা অক্ষর)</p><div class=\"codeblock\"><pre class=\"codepre\">**স্ট্রিং ইনডেক্সিং ও স্লাইসিং:**</pre></div><p class=\"para\">text = \"Python\"</p><p class=\"para\">print(text[0])   # P (প্রথম অক্ষর)</p><p class=\"para\">print(text[1])   # y</p><p class=\"para\">print(text[-1])  # n (শেষ অক্ষর)</p><p class=\"para\">print(text[0:3]) # Pyt (০ থেকে ২ পর্যন্ত)</p><p class=\"para\">print(text[3:])  # hon (৩ থেকে শেষ)</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"অধ্যায় ৫","সিঙ্গেল কোট","65","অধ্যায় ৫: ডেটা টাইপ","<div class=\"codeblock\"><pre class=\"codepre\">city = 'Dhaka'<br>print(city)</pre></div>"),
+      cpg('r',"অধ্যায় ৫","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","66","অধ্যায় ৫: ডেটা টাইপ","<div class=\"codeblock\"><pre class=\"codepre\">message = \"\"\"এটি একটি<br>মাল্টি-লাইন<br>স্ট্রিং\"\"\"<br><br>print(message)</pre></div><div class=\"codeblock\"><pre class=\"codepre\"># স্ট্রিং কনক্যাটেনেশন (যোগ করা)<br>first = \"Rafi\"<br>last = \"Ahmed\"<br>full = first + \" \" + last<br>print(full)  # Rafi Ahmed</pre></div><div class=\"codeblock\"><pre class=\"codepre\"># স্ট্রিং রিপিটেশন<br>line = \"-\" * 20<br>print(line)  # --------------------<br>print(\"হা\" * 3)  # হাহাহা</pre></div><div class=\"codeblock\"><pre class=\"codepre\"># স্ট্রিং-এর দৈর্ঘ্য<br>name = \"Rafi\"<br>print(len(name))  # 4<br>text = \"বাংলাদেশ\"<br>print(len(text))  # 7 (বাংলা অক্ষর)</pre></div><div class=\"codeblock\"><pre class=\"codepre\"># স্ট্রিং ইনডেক্সিং ও স্লাইসিং<br>text = \"Python\"<br>print(text[0])   # P (প্রথম অক্ষর)<br>print(text[1])   # y<br>print(text[-1])  # n (শেষ অক্ষর)<br>print(text[0:3]) # Pyt (০ থেকে ২ পর্যন্ত)<br>print(text[3:])  # hon (৩ থেকে শেষ)</pre></div>")
     ];
     case 35:return[
-      cpg('l',"ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","৩. বুলিয়ান (Boolean/bool)","67","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","<p class=\"para\">বুলিয়ান ডেটা টাইপ শুধু দুইটি মান নিতে পারে: <span class=\"icode\">True</span> (সত্য) অথবা <span class=\"icode\">False</span> (মিথ্যা)।</p><div class=\"codeblock\"><pre class=\"codepre\">is_student = True<br>has_passed = False<br>is_raining = True<br>print(type(is_student))  # &lt;class 'bool'&gt;</pre></div><p class=\"para\">বুলিয়ান মান সাধারণত শর্ত তৈরি করতে ব্যবহার হয়।</p><div class=\"codeblock\"><pre class=\"codepre\">age = 15<br>is_teenager = (age &gt;= 13 and age &lt;= 19)<br>print(is_teenager)  # True</pre></div>"),
-      cpg('r',"ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","৪. টাইপ কনভার্শন (এক টাইপ থেকে অন্য টাইপে)","68","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","<p class=\"para\">কখনো কখনো আমাদের একটি ডেটা টাইপকে অন্য ডেটা টাইপে রূপান্তর করতে হয়।</p><p class=\"para\"><strong>স্ট্রিং থেকে ইন্টিজার:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">number_str = \"123\"<br>number_int = int(number_str)<br>print(number_int + 5)  # 128</pre></div><p class=\"para\"><strong>ইন্টিজার থেকে স্ট্রিং:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">age = 25<br>age_str = str(age)<br>print(\"আমার বয়স \" + age_str)  # আমার বয়স 25</pre></div><p class=\"para\"><strong>স্ট্রিং থেকে ফ্লোট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">price_str = \"45.75\"<br>price_float = float(price_str)<br>print(price_float * 2)  # 91.5</pre></div><p class=\"para\"><strong>ইন্টিজার থেকে ফ্লোট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">x = 10<br>y = float(x)<br>print(y)  # 10.0</pre></div><p class=\"para\"><strong>ফ্লোট থেকে ইন্টিজার:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">x = 3.7<br>y = int(x)<br>print(y)  # 3 (দশমিক অংশ বাদ যায়, rounding না)</pre></div><p class=\"para\"><strong>ইন্টিজার থেকে বুলিয়ান:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(bool(0))    # False<br>print(bool(1))    # True<br>print(bool(100))  # True<br>print(bool(-5))   # True</pre></div><p class=\"para\"><strong>স্ট্রিং থেকে বুলিয়ান:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(bool(\"\"))       # False (খালি স্ট্রিং)<br>print(bool(\"Hello\"))  # True (অখালি স্ট্রিং)</pre></div>")
+      cpg('l',"অধ্যায় ৫","৩. বুলিয়ান (Boolean/bool)","67","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\">বুলিয়ান ডেটা টাইপ শুধু দুইটি মান নিতে পারে: <span class=\"icode\">True</span> (সত্য) অথবা <span class=\"icode\">False</span> (মিথ্যা)।</p><div class=\"codeblock\"><pre class=\"codepre\">is_student = True<br>has_passed = False<br>is_raining = True<br>print(type(is_student))  # &lt;class 'bool'&gt;</pre></div><p class=\"para\">বুলিয়ান মান সাধারণত শর্ত তৈরি করতে ব্যবহার হয়।</p><div class=\"codeblock\"><pre class=\"codepre\">age = 15<br>is_teenager = (age &gt;= 13 and age &lt;= 19)<br>print(is_teenager)  # True</pre></div>"),
+      cpg('r',"অধ্যায় ৫","৪. টাইপ কনভার্শন (এক টাইপ থেকে অন্য টাইপে)","68","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\">কখনো কখনো আমাদের একটি ডেটা টাইপকে অন্য ডেটা টাইপে রূপান্তর করতে হয়।</p><p class=\"para\"><strong>স্ট্রিং থেকে ইন্টিজার:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">number_str = \"123\"<br>number_int = int(number_str)<br>print(number_int + 5)  # 128</pre></div><p class=\"para\"><strong>ইন্টিজার থেকে স্ট্রিং:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">age = 25<br>age_str = str(age)<br>print(\"আমার বয়স \" + age_str)  # আমার বয়স 25</pre></div><p class=\"para\"><strong>স্ট্রিং থেকে ফ্লোট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">price_str = \"45.75\"<br>price_float = float(price_str)<br>print(price_float * 2)  # 91.5</pre></div><p class=\"para\"><strong>ইন্টিজার থেকে ফ্লোট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">x = 10<br>y = float(x)<br>print(y)  # 10.0</pre></div><p class=\"para\"><strong>ফ্লোট থেকে ইন্টিজার:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">x = 3.7<br>y = int(x)<br>print(y)  # 3 (দশমিক অংশ বাদ যায়, rounding না)</pre></div><p class=\"para\"><strong>ইন্টিজার থেকে বুলিয়ান:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(bool(0))    # False<br>print(bool(1))    # True<br>print(bool(100))  # True<br>print(bool(-5))   # True</pre></div><p class=\"para\"><strong>স্ট্রিং থেকে বুলিয়ান:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">print(bool(\"\"))       # False (খালি স্ট্রিং)<br>print(bool(\"Hello\"))  # True (অখালি স্ট্রিং)</pre></div>")
     ];
     case 36:return[
-      cpg('l',"ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","৫. টাইপ চেক করা","69","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","<p class=\"para\"><span class=\"icode\">type()</span> ফাংশন দিয়ে আমরা ভ্যারিয়েবলের টাইপ জানতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10<br>print(type(x))  # &lt;class 'int'&gt;<br>y = 3.14<br>print(type(y))  # &lt;class 'float'&gt;<br>z = \"Hello\"<br>print(type(z))  # &lt;class 'str'&gt;<br>w = True<br>print(type(w))  # &lt;class 'bool'&gt;</pre></div><p class=\"para\"><span class=\"icode\">isinstance()</span> ফাংশন দিয়ে আমরা চেক করতে পারি কোনো ভ্যারিয়েবল নির্দিষ্ট টাইপের কিনা।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10<br>print(isinstance(x, int))    # True<br>print(isinstance(x, float))  # False<br>print(isinstance(x, (int, float)))  # True (int বা float হলে)</pre></div>"),
-      cpg('r',"ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","৬. ডায়নামিক টাইপিং পুনরালোচনা","70","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","<p class=\"para\">পাইথন ডায়নামিক টাইপিং ভাষা হওয়ায়, আমরা একই ভ্যারিয়েবলে বিভিন্ন সময় বিভিন্ন টাইপের ডেটা রাখতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10        # int<br>print(x, type(x))<br>x = 3.14      # float<br>print(x, type(x))<br>x = \"Hello\"   # str<br>print(x, type(x))<br>x = True      # bool<br>print(x, type(x))<br>x = [1, 2, 3] # list<br>print(x, type(x))</pre></div>")
+      cpg('l',"অধ্যায় ৫","৫. টাইপ চেক করা","69","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\"><span class=\"icode\">type()</span> ফাংশন দিয়ে আমরা ভ্যারিয়েবলের টাইপ জানতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10<br>print(type(x))  # &lt;class 'int'&gt;<br>y = 3.14<br>print(type(y))  # &lt;class 'float'&gt;<br>z = \"Hello\"<br>print(type(z))  # &lt;class 'str'&gt;<br>w = True<br>print(type(w))  # &lt;class 'bool'&gt;</pre></div><p class=\"para\"><span class=\"icode\">isinstance()</span> ফাংশন দিয়ে আমরা চেক করতে পারি কোনো ভ্যারিয়েবল নির্দিষ্ট টাইপের কিনা।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10<br>print(isinstance(x, int))    # True<br>print(isinstance(x, float))  # False<br>print(isinstance(x, (int, float)))  # True (int বা float হলে)</pre></div>"),
+      cpg('r',"অধ্যায় ৫","৬. ডায়নামিক টাইপিং পুনরালোচনা","70","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\">পাইথন ডায়নামিক টাইপিং ভাষা হওয়ায়, আমরা একই ভ্যারিয়েবলে বিভিন্ন সময় বিভিন্ন টাইপের ডেটা রাখতে পারি।</p><div class=\"codeblock\"><pre class=\"codepre\">x = 10        # int<br>print(x, type(x))<br>x = 3.14      # float<br>print(x, type(x))<br>x = \"Hello\"   # str<br>print(x, type(x))<br>x = True      # bool<br>print(x, type(x))<br>x = [1, 2, 3] # list<br>print(x, type(x))</pre></div>")
     ];
     case 37:return[
-      cpg('l',"ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","৭. কিছু গুরুত্বপূর্ণ বিষয়","71","ট্রিপল কোট - মাল্টিলাইন স্ট্রিং","<p class=\"para\"><strong>None টাইপ:</strong></p><p class=\"para\"><span class=\"icode\">None</span> একটি বিশেষ টাইপ যা কিছুই না বোঝায়।</p><div class=\"codeblock\"><pre class=\"codepre\">x = None<br>print(type(x))  # &lt;class 'NoneType'&gt;<br>print(x)        # None</pre></div><p class=\"para\"><strong>টাইপ এরর:</strong></p><p class=\"para\">ভুল টাইপের ডেটা নিয়ে কাজ করলে টাইপ এরর হয়।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"ভুল - সংখ্যার সাথে স্ট্রিং যোগ করা","ভুল - সংখ্যার সাথে স্ট্রিং যোগ করা","72","ভুল - সংখ্যার সাথে স্ট্রিং যোগ করা","<p class=\"para\">age = 15</p><p class=\"para\">text = \"আমার বয়স \" + age  # TypeError!</p>")
+      cpg('l',"অধ্যায় ৫","৭. কিছু গুরুত্বপূর্ণ বিষয়","71","অধ্যায় ৫: ডেটা টাইপ","<p class=\"para\"><strong>None টাইপ:</strong></p><p class=\"para\"><span class=\"icode\">None</span> একটি বিশেষ টাইপ যা কিছুই না বোঝায়।</p><div class=\"codeblock\"><pre class=\"codepre\">x = None<br>print(type(x))  # &lt;class 'NoneType'&gt;<br>print(x)        # None</pre></div><p class=\"para\"><strong>টাইপ এরর:</strong></p><p class=\"para\">ভুল টাইপের ডেটা নিয়ে কাজ করলে টাইপ এরর হয়।</p><div class=\"codeblock\"><pre class=\"codepre\">age = 15<br># print(\"আমার বয়স \" + age)  # TypeError!</pre></div>"),
+      cpg('r',"অধ্যায় ৫","ভুল - সংখ্যার সাথে স্ট্রিং যোগ করা","72","অধ্যায় ৫: ডেটা টাইপ","<div class=\"codeblock\"><pre class=\"codepre\">age = 15<br>text = \"আমার বয়স \" + age  # TypeError!</pre></div>")
     ];
     case 38:return[
-      cpg('l',"ঠিক - স্ট্রিং-এ রূপান্তর করে","ঠিক - স্ট্রিং-এ রূপান্তর করে","73","ঠিক - স্ট্রিং-এ রূপান্তর করে","<p class=\"para\">text = \"আমার বয়স \" + str(age)  # ঠিক আছে</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"ঠিক - স্ট্রিং-এ রূপান্তর করে","প্র্যাকটিস প্রবলেম","74","ঠিক - স্ট্রিং-এ রূপান্তর করে","<ol class=\"numlist\"><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে একটি সংখ্যা ইনপুট নিয়ে সেটি int, float, str, bool এই চার টাইপে রূপান্তর করে প্রিন্ট করবে।</li><li>ব্যবহারকারীর কাছ থেকে একটি বাক্য ইনপুট নিয়ে সেটির দৈর্ঘ্য, প্রথম অক্ষর, শেষ অক্ষর প্রিন্ট করো।</li><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর বয়স ইনপুট নিয়ে সেটি থেকে সেকেন্ডে বয়স বের করবে। (১ বছর = ৩৬৫ দিন, ১ দিন = ২৪ ঘণ্টা, ১ ঘণ্টা = ৩৬০০ সেকেন্ড)</li></ol>")
+      cpg('l',"অধ্যায় ৫","ঠিক - স্ট্রিং-এ রূপান্তর করে","73","অধ্যায় ৫: ডেটা টাইপ","<div class=\"codeblock\"><pre class=\"codepre\">age = 15<br>text = \"আমার বয়স \" + str(age)  # ঠিক আছে<br>print(text)</pre></div>"),
+      cpg('r',"অধ্যায় ৫","প্র্যাকটিস প্রবলেম","74","অধ্যায় ৫: ডেটা টাইপ","<ol class=\"numlist\"><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর কাছ থেকে একটি সংখ্যা ইনপুট নিয়ে সেটি int, float, str, bool এই চার টাইপে রূপান্তর করে প্রিন্ট করবে।</li><li>ব্যবহারকারীর কাছ থেকে একটি বাক্য ইনপুট নিয়ে সেটির দৈর্ঘ্য, প্রথম অক্ষর, শেষ অক্ষর প্রিন্ট করো।</li><li>একটি প্রোগ্রাম লিখো যা ব্যবহারকারীর বয়স ইনপুট নিয়ে সেটি থেকে সেকেন্ডে বয়স বের করবে। (১ বছর = ৩৬৫ দিন, ১ দিন = ২৪ ঘণ্টা, ১ ঘণ্টা = ৩৬০০ সেকেন্ড)</li></ol>")
     ];
     case 39:return[
       cpg('l',"ঠিক - স্ট্রিং-এ রূপান্তর করে","সংক্ষেপে","75","ঠিক - স্ট্রিং-এ রূপান্তর করে","<p class=\"para\">পাইথনে বিভিন্ন ডেটা টাইপ আছে: int (পূর্ণসংখ্যা), float (দশমিক সংখ্যা), str (স্ট্রিং), bool (বুলিয়ান) ইত্যাদি। টাইপ কনভার্শন ফাংশন যেমন int(), float(), str(), bool() দিয়ে আমরা এক টাইপ থেকে অন্য টাইপে রূপান্তর করতে পারি। type() ফাংশন দিয়ে টাইপ চেক করা যায়।</p>"),
       cpg('r',"অধ্যায় ৬","অধ্যায় ৬: ফান চ্যালেঞ্জসমূহ","76","ঠিক - স্ট্রিং-এ রূপান্তর করে","<p class=\"para\">প্রোগ্রামিং শেখার সবচেয়ে ভালো উপায় হলো প্র্যাকটিস করা। চলো, আমরা কিছু মজার চ্যালেঞ্জ সমাধান করি।</p>")
     ];
     case 40:return[
-      cpg('l',"অধ্যায় ৬","চ্যালেঞ্জ ১: বয়স ক্যালকুলেটর","77","অধ্যায় ৬: ফান চ্যালেঞ্জসমূহ","<p class=\"para\">তোমার জন্ম সাল ইনপুট নিয়ে তোমার বয়স বের করো।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
-      cpg('r',"বয়স ক্যালকুলেটর প্রোগ্রাম","বয়স ক্যালকুলেটর প্রোগ্রাম","78","বয়স ক্যালকুলেটর প্রোগ্রাম","<p class=\"para\">print(\"🎂 বয়স ক্যালকুলেটর 🎂\")</p><p class=\"para\">print(\"======================\")</p><p class=\"para\">birth_year = int(input(\"তোমার জন্ম সাল লিখো (যেমন: 2010): \"))</p><p class=\"para\">current_year = 2025</p><p class=\"para\">age = current_year - birth_year</p><p class=\"para\">print(f\"তোমার বয়স {age} বছর!\")</p><p class=\"para\">print(\"======================\")</p><div class=\"codeblock\"><pre class=\"codepre\">**আউটপুট:**</pre></div><p class=\"para\">🎂 বয়স ক্যালকুলেটর 🎂</p><p class=\"para\">======================</p><p class=\"para\">তোমার জন্ম সাল লিখো (যেমন: 2010): 2010</p><p class=\"para\">তোমার বয়স 15 বছর!</p><p class=\"para\">======================</p><div class=\"codeblock\"><pre class=\"codepre\">**এক্সট্রা চ্যালেঞ্জ:** জন্ম তারিখ ও মাস ইনপুট নিয়ে সঠিকভাবে বয়স বের করো।</pre></div>")
+      cpg('l',"অধ্যায় ৬","চ্যালেঞ্জ ১: বয়স ক্যালকুলেটর","77","অধ্যায় ৬: ফান চ্যালেঞ্জসমূহ","<p class=\"para\">তোমার জন্ম সাল ইনপুট নিয়ে তোমার বয়স বের করো।</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"🎂 বয়স ক্যালকুলেটর 🎂\")<br>print(\"======================\")<br>birth_year = int(input(\"তোমার জন্ম সাল লিখো (যেমন: 2010): \"))<br>current_year = 2025<br>age = current_year - birth_year<br>print(f\"তোমার বয়স {age} বছর!\")<br>print(\"======================\")</pre></div>"),
+      cpg('r',"অধ্যায় ৬","বয়স ক্যালকুলেটর প্রোগ্রাম","78","অধ্যায় ৬: ফান চ্যালেঞ্জসমূহ","<div class=\"codeblock\"><pre class=\"codepre\">print(\"🎂 বয়স ক্যালকুলেটর 🎂\")<br>print(\"======================\")<br>birth_year = int(input(\"তোমার জন্ম সাল লিখো (যেমন: 2010): \"))<br>current_year = 2025<br>age = current_year - birth_year<br>print(f\"তোমার বয়স {age} বছর!\")<br>print(\"======================\")</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">🎂 বয়স ক্যালকুলেটর 🎂<br>======================<br>তোমার জন্ম সাল লিখো (যেমন: 2010): 2010<br>তোমার বয়স 15 বছর!<br>======================</pre></div><p class=\"para\"><strong>এক্সট্রা চ্যালেঞ্জ:</strong> জন্ম তারিখ ও মাস ইনপুট নিয়ে সঠিকভাবে বয়স বের করো।</p>")
     ];
     case 41:return[
       cpg('l',"বয়স ক্যালকুলেটর প্রোগ্রাম","চ্যালেঞ্জ ২: ইমোজি প্রিন্টার","79","বয়স ক্যালকুলেটর প্রোগ্রাম","<p class=\"para\">তোমার প্রিয় ইমোজি ইনপুট নিয়ে সেটা যতবার খুশি ততবার প্রিন্ট করো।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>"),
       cpg('r',"ইমোজি প্রিন্টার প্রোগ্রাম","ইমোজি প্রিন্টার প্রোগ্রাম","80","ইমোজি প্রিন্টার প্রোগ্রাম","<p class=\"para\">print(\"😄 ইমোজি প্রিন্টার 😄\")</p><p class=\"para\">print(\"=====================\")</p><p class=\"para\">emoji = input(\"তোমার প্রিয় ইমোজি কী? (যেমন: 😊, 😍, 🚀): \")</p><p class=\"para\">count = int(input(\"কতবার দেখতে চাও? \"))</p><p class=\"para\">print(\"\n\" + \"=\" * 20)</p><p class=\"para\">print(emoji * count)</p><p class=\"para\">print(\"=\" * 20)</p><div class=\"codeblock\"><pre class=\"codepre\">**আউটপুট:**</pre></div><p class=\"para\">😄 ইমোজি প্রিন্টার 😄</p><p class=\"para\">=====================</p><p class=\"para\">তোমার প্রিয় ইমোজি কী? (যেমন: 😊, 😍, 🚀): 😊</p><p class=\"para\">কতবার দেখতে চাও? 5</p><p class=\"para\">====================</p><p class=\"para\">😊😊😊😊😊</p><p class=\"para\">====================</p><div class=\"codeblock\"><pre class=\"codepre\">**এক্সট্রা চ্যালেঞ্জ:** ব্যবহারকারীকে জিজ্ঞেস করো সে কয়টি ইমোজি একসাথে দেখতে চায়, এবং সেগুলো প্রিন্ট করো।</pre></div>")
     ];
     case 42:return[
-      cpg('l',"ইমোজি প্রিন্টার প্রোগ্রাম","চ্যালেঞ্জ ৩: প্রোগ্রামের ধারা অনুসরণ (Flow Tracing)","81","ইমোজি প্রিন্টার প্রোগ্রাম","<p class=\"para\">নিচের প্রোগ্রামটি ধাপে ধাপে বিশ্লেষণ করো এবং আউটপুট কী হবে তা বের করো:</p><div class=\"codeblock\"><pre class=\"codepre\">x = 5<br>y = 10<br>print(\"শুরুতে: x =\", x, \", y =\", y)<br>x = x + y<br>print(\"x = x + y এর পর: x =\", x, \", y =\", y)<br>y = x - y<br>print(\"y = x - y এর পর: x =\", x, \", y =\", y)<br>x = x - y<br>print(\"শেষ পর্যন্ত: x =\", x, \", y =\", y)</pre></div><p class=\"para\"><strong>আউটপুট বিশ্লেষণ:</strong></p><p class=\"para\">ধাপ ১: x = 5, y = 10</p><p class=\"para\">ধাপ ২: x = 5 + 10 = 15, y = 10</p><p class=\"para\">ধাপ ৩: y = 15 - 10 = 5, x = 15</p><p class=\"para\">ধাপ ৪: x = 15 - 5 = 10, y = 5</p><p class=\"para\"><strong>চূড়ান্ত আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">শুরুতে: x = 5 , y = 10<br>x = x + y এর পর: x = 15 , y = 10<br>y = x - y এর পর: x = 15 , y = 5<br>শেষ পর্যন্ত: x = 10 , y = 5</pre></div><p class=\"para\">এই প্রোগ্রামটি আসলে দুইটি সংখ্যার মান অদল-বদল (swap) করার একটি পদ্ধতি দেখায়, কোনো অতিরিক্ত ভ্যারিয়েবল ছাড়াই!</p>"),
-      cpg('r',"ইমোজি প্রিন্টার প্রোগ্রাম","চ্যালেঞ্জ ৪: টেম্পারেচার কনভার্টার","82","ইমোজি প্রিন্টার প্রোগ্রাম","<p class=\"para\">সেলসিয়াস থেকে ফারেনহাইটে রূপান্তর করো।</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"🌡️ টেম্পারেচার কনভার্টার 🌡️\")<br>print(\"============================\")<br>celsius = float(input(\"সেলসিয়াস তাপমাত্রা লিখো: \"))<br>fahrenheit = (celsius * 9/5) + 32<br>kelvin = celsius + 273.15<br>print(f\"{celsius}°C = {fahrenheit:.2f}°F\")<br>print(f\"{celsius}°C = {kelvin:.2f}K\")<br>print(\"============================\")</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">🌡️ টেম্পারেচার কনভার্টার 🌡️<br>============================<br>সেলসিয়াস তাপমাত্রা লিখো: 25<br>25.0°C = 77.00°F<br>25.0°C = 298.15K<br>============================</pre></div>")
+      cpg('l',"অধ্যায় ৬","চ্যালেঞ্জ ৩: প্রোগ্রামের ধারা অনুসরণ (Flow Tracing)","81","অধ্যায় ৬: ফান চ্যালেঞ্জসমূহ","<p class=\"para\">নিচের প্রোগ্রামটি ধাপে ধাপে বিশ্লেষণ করো এবং আউটপুট কী হবে তা বের করো:</p><div class=\"codeblock\"><pre class=\"codepre\">x = 5<br>y = 10<br>print(\"শুরুতে: x =\", x, \", y =\", y)<br>x = x + y<br>print(\"x = x + y এর পর: x =\", x, \", y =\", y)<br>y = x - y<br>print(\"y = x - y এর পর: x =\", x, \", y =\", y)<br>x = x - y<br>print(\"শেষ পর্যন্ত: x =\", x, \", y =\", y)</pre></div><p class=\"para\"><strong>আউটপুট বিশ্লেষণ:</strong></p><p class=\"para\">ধাপ ১: x = 5, y = 10</p><p class=\"para\">ধাপ ২: x = 5 + 10 = 15, y = 10</p><p class=\"para\">ধাপ ৩: y = 15 - 10 = 5, x = 15</p><p class=\"para\">ধাপ ৪: x = 15 - 5 = 10, y = 5</p><p class=\"para\"><strong>চূড়ান্ত আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">শুরুতে: x = 5 , y = 10<br>x = x + y এর পর: x = 15 , y = 10<br>y = x - y এর পর: x = 15 , y = 5<br>শেষ পর্যন্ত: x = 10 , y = 5</pre></div><p class=\"para\">এই প্রোগ্রামটি আসলে দুইটি সংখ্যার মান অদল-বদল (swap) করার একটি পদ্ধতি দেখায়, কোনো অতিরিক্ত ভ্যারিয়েবল ছাড়াই!</p>"),
+      cpg('r',"অধ্যায় ৬","চ্যালেঞ্জ ৪: টেম্পারেচার কনভার্টার","82","অধ্যায় ৬: ফান চ্যালেঞ্জসমূহ","<p class=\"para\">সেলসিয়াস থেকে ফারেনহাইটে রূপান্তর করো।</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"🌡️ টেম্পারেচার কনভার্টার 🌡️\")<br>print(\"============================\")<br>celsius = float(input(\"সেলসিয়াস তাপমাত্রা লিখো: \"))<br>fahrenheit = (celsius * 9/5) + 32<br>kelvin = celsius + 273.15<br>print(f\"{celsius}°C = {fahrenheit:.2f}°F\")<br>print(f\"{celsius}°C = {kelvin:.2f}K\")<br>print(\"============================\")</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">🌡️ টেম্পারেচার কনভার্টার 🌡️<br>============================<br>সেলসিয়াস তাপমাত্রা লিখো: 25<br>25.0°C = 77.00°F<br>25.0°C = 298.15K<br>============================</pre></div>")
     ];
     case 43:return[
       cpg('l',"ইমোজি প্রিন্টার প্রোগ্রাম","চ্যালেঞ্জ ৫: মিনিটকে ঘণ্টায় রূপান্তর","83","ইমোজি প্রিন্টার প্রোগ্রাম","<p class=\"para\">মিনিট ইনপুট নিয়ে তা ঘণ্টা ও মিনিটে প্রকাশ করো।</p><div class=\"codeblock\"><pre class=\"codepre\">print(\"⏰ মিনিট কনভার্টার ⏰\")<br>print(\"=====================\")<br>total_minutes = int(input(\"মিনিট লিখো: \"))<br>hours = total_minutes // 60<br>minutes = total_minutes % 60<br>print(f\"{total_minutes} মিনিট = {hours} ঘণ্টা {minutes} মিনিট\")<br>print(\"=====================\")</pre></div><p class=\"para\"><strong>আউটপুট:</strong></p><div class=\"codeblock\"><pre class=\"codepre\">⏰ মিনিট কনভার্টার ⏰<br>=====================<br>মিনিট লিখো: 135<br>135 মিনিট = 2 ঘণ্টা 15 মিনিট<br>=====================</pre></div>"),
@@ -1665,8 +1887,8 @@ function getSpread(idx){
       cpg('r',"কী-ভ্যালু পেয়ারের উপর লুপ","কী-ভ্যালু পেয়ারের উপর লুপ","144","কী-ভ্যালু পেয়ারের উপর লুপ","<p class=\"para\">print(\"\nকী-ভ্যালু পেয়ার:\")</p><p class=\"para\">for key, value in student.items():</p><p class=\"para\">print(f\"  {key}: {value}\")</p><div class=\"codeblock\"><pre class=\"codepre\">**আউটপুট:**</pre></div><p class=\"para\">কী সমূহ:</p><p class=\"para\">name</p><p class=\"para\">age</p><p class=\"para\">grade</p><p class=\"para\">city</p><p class=\"para\">keys() মেথড:</p><p class=\"para\">name</p><p class=\"para\">age</p><p class=\"para\">grade</p><p class=\"para\">city</p><p class=\"para\">ভ্যালু সমূহ:</p><p class=\"para\">রাফি</p><p class=\"para\">15</p><p class=\"para\">৯ম</p><p class=\"para\">ঢাকা</p><p class=\"para\">কী-ভ্যালু পেয়ার:</p><p class=\"para\">name: রাফি</p><p class=\"para\">age: 15</p><p class=\"para\">grade: ৯ম</p><p class=\"para\">city: ঢাকা</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
     ];
     case 74:return[
-      cpg('l',"কী-ভ্যালু পেয়ারের উপর লুপ","ডিকশনারির দরকারি মেথডসমূহ","145","কী-ভ্যালু পেয়ারের উপর লুপ","<p class=\"para\">| মেথড | বর্ণনা | উদাহরণ |</p><p class=\"para\">|-------|---------|---------|</p><p class=\"para\">| keys() | সব কী রিটার্ন করে | student.keys() |</p><p class=\"para\">| values() | সব ভ্যালু রিটার্ন করে | student.values() |</p><p class=\"para\">| items() | সব কী-ভ্যালু পেয়ার রিটার্ন করে | student.items() |</p><p class=\"para\">| get(key, default) | কী-এর ভ্যালু রিটার্ন করে, না থাকলে ডিফল্ট | student.get(\"name\", \"N/A\") |</p><p class=\"para\">| update(dict2) | অন্য ডিকশনারির উপাদান যোগ করে | student.update(new_data) |</p><p class=\"para\">| pop(key) | নির্দিষ্ট কী মুছে ভ্যালু রিটার্ন করে | student.pop(\"age\") |</p><p class=\"para\">| popitem() | শেষ যোগ করা উপাদান মুছে ফেলে | student.popitem() |</p><p class=\"para\">| clear() | সব উপাদান মুছে ফেলে | student.clear() |</p><p class=\"para\">| copy() | ডিকশনারির কপি তৈরি করে | student2 = student.copy() |</p><p class=\"para\">| fromkeys() | নির্দিষ্ট কী নিয়ে নতুন ডিকশনারি | dict.fromkeys([\"a\", \"b\"], 0) |</p><p class=\"para\">| setdefault(key, default) | কী না থাকলে ডিফল্ট ভ্যালু সেট করে | student.setdefault(\"roll\", 0) |</p>"),
-      cpg('r',"কী-ভ্যালু পেয়ারের উপর লুপ","নেস্টেড ডিকশনারি","146","কী-ভ্যালু পেয়ারের উপর লুপ","<p class=\"para\">ডিকশনারির ভিতরে ডিকশনারি থাকতে পারে। একে বলে নেস্টেড ডিকশনারি।</p><div class=\"codeblock\"><pre class=\"codepre\"></pre></div>")
+      cpg('l',"কী-ভ্যালু পেয়ারের উপর লুপ","ডিকশনারির দরকারি মেথডসমূহ","145","কী-ভ্যালু পেয়ারের উপর লুপ","<table class=\"dtype-table\"><thead><tr><th>মেথড</th><th>বর্ণনা</th><th>উদাহরণ</th></tr></thead><tbody><tr><td><code>keys()</code></td><td>সব কী রিটার্ন করে</td><td><code>student.keys()</code></td></tr><tr><td><code>values()</code></td><td>সব ভ্যালু রিটার্ন করে</td><td><code>student.values()</code></td></tr><tr><td><code>items()</code></td><td>সব কী-ভ্যালু পেয়ার রিটার্ন করে</td><td><code>student.items()</code></td></tr><tr><td><code>get(key, default)</code></td><td>কী-এর ভ্যালু রিটার্ন করে, না থাকলে ডিফল্ট</td><td><code>student.get(\"name\", \"N/A\")</code></td></tr><tr><td><code>update(dict2)</code></td><td>অন্য ডিকশনারির উপাদান যোগ করে</td><td><code>student.update(new_data)</code></td></tr><tr><td><code>pop(key)</code></td><td>নির্দিষ্ট কী মুছে ভ্যালু রিটার্ন করে</td><td><code>student.pop(\"age\")</code></td></tr><tr><td><code>popitem()</code></td><td>শেষ যোগ করা উপাদান মুছে ফেলে</td><td><code>student.popitem()</code></td></tr><tr><td><code>clear()</code></td><td>সব উপাদান মুছে ফেলে</td><td><code>student.clear()</code></td></tr><tr><td><code>copy()</code></td><td>ডিকশনারির কপি তৈরি করে</td><td><code>student2 = student.copy()</code></td></tr><tr><td><code>fromkeys()</code></td><td>নির্দিষ্ট কী নিয়ে নতুন ডিকশনারি</td><td><code>dict.fromkeys([\"a\", \"b\"], 0)</code></td></tr><tr><td><code>setdefault(key, default)</code></td><td>কী না থাকলে ডিফল্ট ভ্যালু সেট করে</td><td><code>student.setdefault(\"roll\", 0)</code></td></tr></tbody></table>"),
+      cpg('r',"কী-ভ্যালু পেয়ারের উপর লুপ","নেস্টেড ডিকশনারি","146","কী-ভ্যালু পেয়ারের উপর লুপ","<p class=\"para\">ডিকশনারির ভিতরে ডিকশনারি থাকতে পারে। একে বলে নেস্টেড ডিকশনারি।</p><div class=\"codeblock\"><pre class=\"codepre\">students = {<br>  \"101\": {\"name\": \"রাফি\", \"age\": 15},<br>  \"102\": {\"name\": \"তাসিম\", \"age\": 16}<br>}<br><br>print(students[\"101\"][\"name\"])  # রাফি</pre></div>")
     ];
     case 75:return[
       cpg('l',"নেস্টেড ডিকশনারি","নেস্টেড ডিকশনারি","147","নেস্টেড ডিকশনারি","<p class=\"para\">students = {</p><p class=\"para\">\"101\": {</p><p class=\"para\">\"name\": \"রাফি\",</p><p class=\"para\">\"age\": 15,</p><p class=\"para\">\"grade\": \"৯ম\",</p><p class=\"para\">\"marks\": {</p><p class=\"para\">\"math\": 85,</p><p class=\"para\">\"science\": 90,</p><p class=\"para\">\"english\": 88</p><p class=\"para\">}</p><p class=\"para\">},</p><p class=\"para\">\"102\": {</p><p class=\"para\">\"name\": \"তাসিম\",</p><p class=\"para\">\"age\": 16,</p><p class=\"para\">\"grade\": \"১০ম\",</p><p class=\"para\">\"marks\": {</p><p class=\"para\">\"math\": 92,</p><p class=\"para\">\"science\": 88,</p><p class=\"para\">\"english\": 95</p><p class=\"para\">}</p><p class=\"para\">}</p><p class=\"para\">}</p>"),
@@ -3408,8 +3630,32 @@ $('pbar-click').addEventListener('click',function(e){
 /* ═══════════════════════════════════
    KEYBOARD
 ═══════════════════════════════════ */
+function getScrollablePageAreas(){
+  return Array.prototype.slice.call(document.querySelectorAll('#pagesbox .cbody, #pagesbox .tocbody'));
+}
+function scrollPageAreasBy(delta){
+  var areas=getScrollablePageAreas();
+  if(!areas.length)return false;
+  var didScroll=false;
+  areas.forEach(function(el){
+    if(el.scrollHeight>el.clientHeight){
+      var before=el.scrollTop;
+      el.scrollTop=Math.max(0,Math.min(el.scrollHeight-el.clientHeight,before+delta));
+      if(el.scrollTop!==before)didScroll=true;
+    }
+  });
+  return didScroll;
+}
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='ArrowDown'){
+    if(scrollPageAreasBy(56))e.preventDefault();
+    return;
+  }
+  if(e.key==='ArrowUp'){
+    if(scrollPageAreasBy(-56))e.preventDefault();
+    return;
+  }
   if(e.key==='ArrowRight'||e.key==='PageDown')goNext();
   else if(e.key==='ArrowLeft'||e.key==='PageUp')goPrev();
   else if(e.key==='Home'){cur=0;renderSpread(cur);}
